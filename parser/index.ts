@@ -3,7 +3,7 @@ import { grammarDefinition } from './grammar'
 
 const myGrammar = ohm.grammar(grammarDefinition);
 
-const m = myGrammar.match(`char name1 = 0x5`);
+const m = myGrammar.match(String.raw`char name1 = "abc \" cba"`);
 if (m.succeeded()) {
   console.log('Good Match');
 } else {
