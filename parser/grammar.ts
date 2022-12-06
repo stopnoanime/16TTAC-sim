@@ -1,7 +1,9 @@
 export const grammarDefinition = String.raw`
 Grammar {
-  Exp = 
-       varType  varName ArrDim* ("=" (valueLiteral | ArrLiteral | stringLiteral))?  -- variable
+  Exp = Token*
+  
+  Token = 
+    varType  varName ArrDim* ("=" (valueLiteral | ArrLiteral))?  -- variable
   | varName ":" -- label
   | src "->" dest flag*  -- ins
       
@@ -11,7 +13,7 @@ Grammar {
   
   number = digit+
   charLiteral = "'"any"'"
-  valueLiteral = hexLiteral | number | charLiteral
+  valueLiteral = hexLiteral | number | charLiteral | stringLiteral
   hexLiteral = "0x" hexDigit+
   stringLiteral = "\"" doubleStringCharacter* "\""
 
@@ -25,5 +27,8 @@ Grammar {
   src = caseInsensitive<"acc"> | caseInsensitive<"mem">
   dest = caseInsensitive<"acc"> | caseInsensitive<"mem"> | caseInsensitive<"plus"> | caseInsensitive<"minus">
    flag = caseInsensitive<"c"> | caseInsensitive<"z">
+  
+  comment = "//" (~"\n" any)*
+  space += comment
 }
 `
