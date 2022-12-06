@@ -3,11 +3,11 @@ Grammar {
   Exp = Token*
   
   Token = 
-    varType  varName ArrDim* ("=" (valueLiteral | ArrLiteral))?  -- variable
+    varType  varName ArrDim ("=" (valueLiteral | ArrLiteral))?  -- variable
   | varName ":" -- label
   | src "->" dest flag*  -- ins
       
-  ArrDim = ( "[" number "]" )
+  ArrDim = ( "[" number "]" )*
   ArrLiteral = ("[" ListOf<ArrLiteral, ","> "]")  --ArrLiteralArr
   | valueLiteral
   
