@@ -5,7 +5,7 @@ Grammar {
   Token = 
     varType  varName ArrDim ("=" (valueLiteral | ArrLiteral))?  -- variable
   | varName ":" -- label
-  | src "->" dest flag*  -- ins
+  | (src | valueLiteral) "->" dest flag? flag?  -- ins
       
   ArrDim = ( "[" number "]" )*
   ArrLiteral = ("[" ListOf<ArrLiteral, ","> "]")  --ArrLiteralArr
@@ -24,9 +24,9 @@ Grammar {
   varType = "word" | "char"
   varName = letter (letter | number)*
   
-  src = caseInsensitive<"acc"> | caseInsensitive<"mem">
-  dest = caseInsensitive<"acc"> | caseInsensitive<"mem"> | caseInsensitive<"plus"> | caseInsensitive<"minus">
-   flag = caseInsensitive<"c"> | caseInsensitive<"z">
+  src = "acc" | "adr" | "mem"
+  dest = "acc" | "adr" | "mem" | "plus" | "minus" | "carry" | "zero"
+  flag = "c" | "z"
   
   comment = "//" (~"\n" any)*
   space += comment
