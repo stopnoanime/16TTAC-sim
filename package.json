@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "npx nodemon"
+    "dev": "npx nodemon",
+    "build": "npx tsc"
   },
   "repository": {
     "type": "git",
