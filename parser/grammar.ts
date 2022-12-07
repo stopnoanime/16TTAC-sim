@@ -8,7 +8,7 @@ Grammar {
   | (src | valueLiteral | varName) "=>" dest flag? flag?  -- ins
       
   ArrDim = ( "[" number "]" )*
-  ArrLiteral = ("[" ListOf<ArrLiteral, ","> "]")  --ArrLiteralArr
+  ArrLiteral = ("[" ListOf<ArrLiteral, ","> "]")  -- array
   | valueLiteral
   
   number = "-"? digit+

@@ -12,12 +12,14 @@ const m = myGrammar.match(String.raw`
   word name2 = -100
   word name3 = 0xFFFF
   word name4 = 'a'
-  word name5 = "b"
+  word name5[10] = "abc"
+  word name5[3][10] = [0, "abc", [0xff, 'a', 4]]
 
   label0:
   acc => mem
   adr => acc c
-  0x0f => acc z
+  "abc" => acc z
+  0xff => acc z
   label1:
   label0 => adr c z
 `);
@@ -25,11 +27,15 @@ const s = myGrammar.createSemantics();
 
 s.addOperation('eval', {
   Token_variable(_, name, arrDim, __, value) {
+    const arr = arrDim.eval() as number[]
+    const isArr = arr.length != 0
+
     variables.push({
       name: name.eval(),
       address: variables.length == 0 ? 0 : variables.at(-1).address + variables.at(-1).size,
-      size: 1,
-      value: value.eval()[0] || [0]
+      size: isArr ? arr.reduce((a,c) => a *= c) : 1,
+      dimension: isArr ? arr : [1], //Treat normal variable as one dimensional array with length 1
+      value: value.eval()[0] || 0
     })
   },
 
@@ -57,20 +63,28 @@ s.addOperation('eval', {
     })
   },
 
+  ArrDim(_,dim,__) {
+    return dim.children.map(c => c.eval());
+  },
+
+  ArrLiteral_array(_, arr, __) {
+    return arr.asIteration().children.map((c: any) => c.eval())
+  },
+
   varName(_, __) {
     return this.sourceString
   },
 
   number(_, __) {
-    return [parseInt(this.sourceString)]
+    return parseInt(this.sourceString)
   },
 
   hexLiteral(_, __) {
-    return [parseInt(this.sourceString, 16)]
+    return parseInt(this.sourceString, 16)
   },
 
   charLiteral(_, c, __) {
-    return [c.sourceString.charCodeAt(0)]
+    return c.sourceString.charCodeAt(0)
   },
 
   stringLiteral(_, s, __) {
@@ -107,7 +121,7 @@ type instructionType = {
   address: number,
   size: number,
   operandType?: 'literal' | 'reference',
-  operandValue?: number[] | string,
+  operandValue?: number | number[] | string,
 }
 
 type labelType = {
@@ -115,9 +129,12 @@ type labelType = {
   name: string
 }
 
+type nestedNumber = number | nestedNumber[]
+
 type variableType = {
   address: number,
   name: string,
   size: number,
-  value: number[],
+  dimension: number[],
+  value: nestedNumber,
 }
