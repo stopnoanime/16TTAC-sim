@@ -8,7 +8,7 @@ const myGrammar = ohm.grammar(grammarDefinition);
 const m = myGrammar.match(String.raw`
 
   char name1
-  char name2 = 100
+  char name2 = -100
   word name3 = 0xFFFF
   char name4 = 'a'
   word name5 = "b"
@@ -30,8 +30,8 @@ s.addOperation('eval', {
     return this.sourceString
   },
 
-  number(n) {
-    return [parseInt(n.sourceString)]
+  number(_, __) {
+    return [parseInt(this.sourceString)]
   },
 
   hexLiteral(_, __) {

@@ -11,7 +11,7 @@ Grammar {
   ArrLiteral = ("[" ListOf<ArrLiteral, ","> "]")  --ArrLiteralArr
   | valueLiteral
   
-  number = digit+
+  number = "-"? digit+
   charLiteral = "'"any"'"
   valueLiteral = hexLiteral | number | charLiteral | stringLiteral
   hexLiteral = "0x" hexDigit+
