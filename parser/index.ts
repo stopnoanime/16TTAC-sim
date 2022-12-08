@@ -1,6 +1,23 @@
 import ohm from 'ohm-js';
 import { grammarDefinition } from './grammar'
 
+const sourceToVal: {[k in sourceType]: number}= {
+  acc: 0,
+  adr: 1,
+  mem: 2,
+  op: 3,
+}
+
+const destinationToVal: {[k in destinationType]: number}= {
+  acc: 0,
+  adr: 1,
+  mem: 2,
+  plus: 3,
+  minus: 4,
+  carry: 5,
+  zero: 6,
+}
+
 const variables: variableType[] = [];
 const instructions: instructionType[] = [];
 const labels: labelType[] = [];
@@ -13,13 +30,14 @@ const m = myGrammar.match(String.raw`
   word name3 = 0xFFFF
   word name4 = 'a'
   word name5[10] = "abc"
-  word name5[3][10] = [0, "abc", [0xff, 'a', 4]]
+  word name6[3][10] = [3, "abc", ['a', 4]]
 
   label0:
   acc => mem
   adr => acc c
   "abc" => acc z
   0xff => acc z
+  name6 => adr
   label1:
   label0 => adr c z
 `);
@@ -106,8 +124,59 @@ if (m.succeeded()) {
   console.log(variables)
   console.log(instructions)
   console.log(labels)
+  console.log(secondPass());
 } else {
   console.log("Bad Match");
+}
+ 
+function secondPass() {
+  const output: number[] = [];
+
+  const variablesOffset = instructions.length == 0 ? 0 : instructions.at(-1).address + instructions.at(-1).size;
+
+  instructions.forEach(ins => {
+    output.push((sourceToVal[ins.source] << 9) + (destinationToVal[ins.destination] << 2) + (ins.carry ? 2 : 0) + (ins.zero ? 1 : 0))
+
+    if(ins.source != 'op') return
+
+    if(ins.operandType == 'reference') output.push(getReferenceAddress(ins.operandValue as string, variablesOffset))
+    else output.push(getVariableValueAtPosition([1], ins.operandValue as nestedNumber))
+  })
+
+  variables.forEach(vr => {
+    // @ts-ignore
+    output.push(...getVariableSubArray([], vr.dimension, vr.value).flat(Infinity))
+  })
+
+  return output
+}
+
+function getVariableSubArray(dimBefore: number[], dim: number[], value: nestedNumber): nestedNumber[] {
+  if(dim.length == 1) return Array.from(Array(dim[0])).map((_,i) => getVariableValueAtPosition([...dimBefore, i], value));
+  else return Array.from(Array(dim[0])).map((_,i)=> getVariableSubArray([...dimBefore, i], dim.slice(1), value));
+}
+
+function getVariableValueAtPosition(pos: number[], value: nestedNumber): number {
+  if(Array.isArray(value)) {
+    if(pos.length == 0) throw "Array initialization value is too deep for array structure"
+
+    const pop = pos.shift();
+    if(pop >= value.length) return 0 //If element position is array is larger than given initial value size, default to 0
+    
+    return getVariableValueAtPosition(pos, value[pop])
+  } else return value // value is number
+}
+
+function getReferenceAddress(name: string, variablesOffset: number) {
+  const foundLabel = labels.find(v => v.name == name)
+  
+  if(foundLabel) return foundLabel.address
+  
+  const foundVar = variables.find(v => v.name == name)
+
+  if(!foundVar) throw "reference not found"
+  
+  return foundVar.address + variablesOffset
 }
 
 type sourceType = "acc" | "adr" | "mem" | "op"
