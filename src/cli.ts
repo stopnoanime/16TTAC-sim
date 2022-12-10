@@ -1,23 +1,39 @@
 import { Compiler } from "./compiler";
-
+import { Sim } from "./sim";
 const compiler = new Compiler();
 
 const output = compiler.compile(String.raw`
-    word name1
-    word name2 = -100
-    word name3 = 0xFFFF
-    word name4 = 'a'
-    word name5[10] = "abc"
-    word name6[3][10] = [3, "abc", ['a', 4]]
+    word string[15] = "Hello World!"
+    word stringPos = 0
+    word size = 12
 
-    label0:
-    acc => mem
-    adr => acc c
-    "abc" => acc z
-    0xff => acc z
-    name6 => adr
-    label1:
-    label0 => adr c z
+    loop:
+        string => acc
+        stringPos => adr
+        mem => plus
+
+        acc => adr
+        mem => out
+
+        stringPos => adr
+        mem => acc
+        1 => plus
+        acc => mem
+
+        size => adr
+        mem => minus
+        end => pc z
+
+        loop => pc
+
+    end:
+        end => pc
 `);
 
-console.log(output);
+const sim = new Sim();
+
+sim.initializeMemory(output);
+
+for (let i = 0; i < 200; i++) {
+  sim.singleStep();
+}
