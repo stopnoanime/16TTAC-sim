@@ -31,4 +31,4 @@ Grammar {
   comment = "//" (~"\n" any)*
   space += comment
 }
-`
+`;

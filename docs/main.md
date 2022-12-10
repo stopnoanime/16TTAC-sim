@@ -20,12 +20,14 @@
 </table>
 
 Sources:
+
 - acc - 0x00
 - adr - 0x01
 - mem - 0x02
 - op - 0x03
 
 Destinations:
+
 - acc - 0x00
 - adr - 0x01
 - mem - 0x02
