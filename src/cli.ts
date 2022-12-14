@@ -29,23 +29,21 @@ const output = compiler.compile(String.raw`
   // end:
   //     end => pc
 
-  100 => acc
-  100 => minus
-
-  carry => pc c
-  'n' => out
-  end => pc
-  
-  carry:
-  'c' => out
-
-  end:
-  end => pc
+  100 => out
+  100 => out_num 
 `);
 
-//console.log(output);
+console.log(output);
 
-const sim = new Sim();
+function outRaw(n: number) {
+  console.log(String.fromCharCode(n));
+}
+
+function outInt(n: number) {
+  console.log(n);
+}
+
+const sim = new Sim({ outputRawCallback: outRaw, outputIntCallback: outInt });
 
 sim.initializeMemory(output);
 

@@ -15,6 +15,7 @@ export const destinationToVal: { [k in destinationType]: number } = {
   zero: 6,
   out: 7,
   pc: 8,
+  out_num: 9,
 };
 
 export type sourceType = "acc" | "adr" | "mem" | "op";
@@ -27,4 +28,5 @@ export type destinationType =
   | "carry"
   | "zero"
   | "out"
-  | "pc";
+  | "pc"
+  | "out_num";

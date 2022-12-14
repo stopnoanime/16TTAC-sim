@@ -1,6 +1,9 @@
 import { destinationToVal, sourceToVal } from "./instructions";
 
 export class Sim {
+  public outputRawCallback: outputRawCallbackType;
+  public outputIntCallback: outputIntCallbackType;
+
   private memory: Uint16Array;
 
   private acc: number;
@@ -11,8 +14,12 @@ export class Sim {
 
   private static u16_max = 65536;
 
-  constructor(MEM_SIZE = Sim.u16_max) {
-    this.memory = new Uint16Array(MEM_SIZE);
+  constructor(options: SimConstructorOptions) {
+    this.memory = new Uint16Array(Sim.u16_max);
+
+    this.outputRawCallback = options.outputRawCallback;
+    this.outputIntCallback = options.outputIntCallback;
+
     this.reset();
   }
 
@@ -66,6 +73,9 @@ export class Sim {
       case sourceToVal.op:
         this.pc++;
         return this.memory[this.pc];
+
+      default:
+        return 0;
     }
   }
 
@@ -105,7 +115,11 @@ export class Sim {
         break;
 
       case destinationToVal.out:
-        console.log(String.fromCharCode(value));
+        this.outputRawCallback?.(value);
+        break;
+
+      case destinationToVal.out_num:
+        this.outputIntCallback?.(value);
         break;
 
       case destinationToVal.pc:
@@ -123,3 +137,11 @@ export class Sim {
     return n & 0xffff;
   }
 }
+
+type SimConstructorOptions = Partial<{
+  outputRawCallback: outputRawCallbackType;
+  outputIntCallback: outputIntCallbackType;
+}>;
+
+export type outputRawCallbackType = (n: number) => void;
+export type outputIntCallbackType = (n: number) => void;

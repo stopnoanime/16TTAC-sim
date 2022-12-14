@@ -30,7 +30,7 @@ export class Parser {
         });
       },
 
-      Token_ins(src, _, dest, f0, f1) {
+      Token_ins(src, _, dest, __, f0, f1) {
         const isOperand = src.ctorName != "src";
 
         classThis.instructions.push({
@@ -103,7 +103,7 @@ export class Parser {
 
     const match = this.ohmGrammar.match(input);
 
-    if (match.failed()) return null;
+    if (match.failed()) throw "syntax error";
 
     this.ohmSemantics(match).eval();
 

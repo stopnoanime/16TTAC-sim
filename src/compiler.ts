@@ -7,8 +7,6 @@ export class Compiler {
   public compile(input: string) {
     const pOut = this.parser.parse(input);
 
-    if (pOut == null) return null;
-
     const output: number[] = [];
     const variablesOffset = this.parser.nextTokenAddress(pOut.instructions);
 
