@@ -3,6 +3,8 @@ export const sourceToVal: { [k in sourceType]: number } = {
   adr: 1,
   mem: 2,
   op: 3,
+  in: 4,
+  in_avail: 5
 };
 
 export const destinationToVal: { [k in destinationType]: number } = {
@@ -18,7 +20,7 @@ export const destinationToVal: { [k in destinationType]: number } = {
   out_num: 9,
 };
 
-export type sourceType = "acc" | "adr" | "mem" | "op";
+export type sourceType = "acc" | "adr" | "mem" | "op" | "in" | "in_avail";
 export type destinationType =
   | "acc"
   | "adr"

@@ -3,6 +3,8 @@ import { destinationToVal, sourceToVal } from "./instructions";
 export class Sim {
   public outputRawCallback: outputRawCallbackType;
   public outputIntCallback: outputIntCallbackType;
+  public inputRawCallback: inputRawCallbackType;
+  public inputAvailableCallback: inputAvailableCallbackType;
 
   private memory: Uint16Array;
 
@@ -19,6 +21,8 @@ export class Sim {
 
     this.outputRawCallback = options.outputRawCallback;
     this.outputIntCallback = options.outputIntCallback;
+    this.inputRawCallback = options.inputRawCallback
+    this.inputAvailableCallback = options.inputAvailableCallback
 
     this.reset();
   }
@@ -41,6 +45,8 @@ export class Sim {
     const ins = this.decodeInstruction(rawIns);
 
     const sourceValue = this.getSourceValue(ins.source);
+
+    if(sourceValue == null) return //Don't execute instruction if source is not yet available
 
     this.pc++;
 
@@ -73,6 +79,14 @@ export class Sim {
       case sourceToVal.op:
         this.pc++;
         return this.memory[this.pc];
+
+      case sourceToVal.in:
+        if(!this.inputAvailableCallback?.()) return null 
+        
+        return this.inputRawCallback?.() || 0
+
+      case sourceToVal.in_avail:
+        return this.inputAvailableCallback?.() ? 0xFFFF : 0
 
       default:
         return 0;
@@ -141,7 +155,11 @@ export class Sim {
 type SimConstructorOptions = Partial<{
   outputRawCallback: outputRawCallbackType;
   outputIntCallback: outputIntCallbackType;
+  inputRawCallback: inputRawCallbackType;
+  inputAvailableCallback: inputAvailableCallbackType;
 }>;
 
 export type outputRawCallbackType = (n: number) => void;
 export type outputIntCallbackType = (n: number) => void;
+export type inputRawCallbackType = () => number;
+export type inputAvailableCallbackType = () => boolean;

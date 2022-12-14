@@ -24,7 +24,7 @@ Grammar {
   varType = "word"
   varName = letter (letter | number)*
   
-  src = "acc" | "adr" | "mem"
+  src = "acc" | "adr" | "mem" | "in_avail" | "in"
   dest = "acc" | "adr" | "mem" | "plus" | "minus" | "carry" | "zero" | "out_num" | "out" | "pc"
   flag = ("c" | "z") space
   
