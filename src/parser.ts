@@ -82,6 +82,10 @@ export class Parser {
         return [...s.sourceString].map((s) => s.charCodeAt(0));
       },
 
+      flag(s, _) {
+        return s.sourceString;
+      },
+
       _iter(...children) {
         return children.map((c) => c.eval());
       },

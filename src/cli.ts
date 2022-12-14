@@ -3,32 +3,47 @@ import { Sim } from "./sim";
 const compiler = new Compiler();
 
 const output = compiler.compile(String.raw`
-    word string[15] = "Hello World!"
-    word stringPos = 0
-    word size = 12
+  // word string[15] = "Hello World!"
+  // word stringPos = 0
+  // word size = 12
 
-    loop:
-        string => acc
-        stringPos => adr
-        mem => plus
+  // loop:
+  //     string => acc
+  //     stringPos => adr
+  //     mem => plus
 
-        acc => adr
-        mem => out
+  //     acc => adr
+  //     mem => out
 
-        stringPos => adr
-        mem => acc
-        1 => plus
-        acc => mem
+  //     stringPos => adr
+  //     mem => acc
+  //     1 => plus
+  //     acc => mem
 
-        size => adr
-        mem => minus
-        end => pc z
+  //     size => adr
+  //     mem => minus
+  //     end => pc z
 
-        loop => pc
+  //     loop => pc
 
-    end:
-        end => pc
+  // end:
+  //     end => pc
+
+  100 => acc
+  100 => minus
+
+  carry => pc c
+  'n' => out
+  end => pc
+  
+  carry:
+  'c' => out
+
+  end:
+  end => pc
 `);
+
+//console.log(output);
 
 const sim = new Sim();
 

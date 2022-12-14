@@ -1,9 +1,5 @@
 import { destinationToVal, sourceToVal } from "./instructions";
 
-// To do:
-// Carry,Zero flags
-// Bound registers to their 16 bit range
-
 export class Sim {
   private memory: Uint16Array;
 
@@ -13,7 +9,9 @@ export class Sim {
   private carry: boolean;
   private zero: boolean;
 
-  constructor(MEM_SIZE = 65536) {
+  private static u16_max = 65536;
+
+  constructor(MEM_SIZE = Sim.u16_max) {
     this.memory = new Uint16Array(MEM_SIZE);
     this.reset();
   }
@@ -28,7 +26,7 @@ export class Sim {
     this.adr = 0;
     this.pc = 0;
     this.carry = false;
-    this.zero = false;
+    this.zero = true;
   }
 
   public singleStep() {
@@ -39,8 +37,10 @@ export class Sim {
 
     this.pc++;
 
-    if (!ins.zero || this.zero)
+    if ((!ins.zero || this.zero) && (!ins.carry || this.carry))
       this.writeToDestination(ins.destination, sourceValue);
+
+    this.limitRegistersTo16Bits();
   }
 
   private decodeInstruction(ins: number) {
@@ -85,13 +85,23 @@ export class Sim {
         break;
 
       case destinationToVal.plus:
-        this.acc += value;
+        this.acc += value + (this.carry ? 1 : 0);
         this.zero = this.acc == 0;
+        this.carry = this.acc >= Sim.u16_max;
         break;
 
       case destinationToVal.minus:
-        this.acc -= value;
+        this.acc -= value + (this.carry ? 1 : 0);
         this.zero = this.acc == 0;
+        this.carry = this.acc < 0;
+        break;
+
+      case destinationToVal.carry:
+        this.carry = value != 0;
+        break;
+
+      case destinationToVal.zero:
+        this.zero = value != 0;
         break;
 
       case destinationToVal.out:
@@ -102,5 +112,14 @@ export class Sim {
         this.pc = value;
         break;
     }
+  }
+
+  private limitRegistersTo16Bits() {
+    this.acc = this.uint16(this.acc);
+    this.pc = this.uint16(this.pc);
+  }
+
+  private uint16(n: number) {
+    return n & 0xffff;
   }
 }

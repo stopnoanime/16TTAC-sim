@@ -26,7 +26,7 @@ Grammar {
   
   src = "acc" | "adr" | "mem"
   dest = "acc" | "adr" | "mem" | "plus" | "minus" | "carry" | "zero" | "out" | "pc"
-  flag = "c" | "z"
+  flag = "c" &space | "z" &space 
   
   comment = "//" (~"\n" any)*
   space += comment

@@ -33,7 +33,7 @@ export class Compiler {
         );
       else
         output.push(
-          this.getVariableValueAtPosition([1], ins.operandValue as nestedNumber)
+          this.getVariableValueAtPosition([0], ins.operandValue as nestedNumber)
         );
     });
 
