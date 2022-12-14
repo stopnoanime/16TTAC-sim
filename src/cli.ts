@@ -32,8 +32,12 @@ const output = compiler.compile(String.raw`
   in_avail => out_num
   in => out
 
-  in_avail => out_num
-  in => out
+  'b' => out
+  
+  acc => halt
+
+  'c' => out
+
 `);
 
 console.log(output);
@@ -46,24 +50,33 @@ function outInt(n: number) {
   console.log(n);
 }
 
-const input = [97]
+const input = [97];
 
 function inAvil() {
-  return input.length > 0
+  return input.length > 0;
 }
 
 function inp() {
-  return input.pop()
+  return input.pop();
 }
 
-const sim = new Sim({ outputRawCallback: outRaw, outputIntCallback: outInt, inputAvailableCallback: inAvil, inputRawCallback: inp });
+let running = true;
+
+function halt() {
+  console.log("halting");
+  running = false;
+}
+
+const sim = new Sim({
+  outputRawCallback: outRaw,
+  outputIntCallback: outInt,
+  inputAvailableCallback: inAvil,
+  inputRawCallback: inp,
+  haltCallback: halt,
+});
 
 sim.initializeMemory(output);
 
-for (let i = 0; i < 200; i++) {
+while (running) {
   sim.singleStep();
-
-  if(i==100) {
-    input.push(100)
-  }
 }

@@ -4,7 +4,7 @@ export const sourceToVal: { [k in sourceType]: number } = {
   mem: 2,
   op: 3,
   in: 4,
-  in_avail: 5
+  in_avail: 5,
 };
 
 export const destinationToVal: { [k in destinationType]: number } = {
@@ -18,6 +18,7 @@ export const destinationToVal: { [k in destinationType]: number } = {
   out: 7,
   pc: 8,
   out_num: 9,
+  halt: 10,
 };
 
 export type sourceType = "acc" | "adr" | "mem" | "op" | "in" | "in_avail";
@@ -31,4 +32,5 @@ export type destinationType =
   | "zero"
   | "out"
   | "pc"
-  | "out_num";
+  | "out_num"
+  | "halt";

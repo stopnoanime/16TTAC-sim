@@ -5,6 +5,7 @@ export class Sim {
   public outputIntCallback: outputIntCallbackType;
   public inputRawCallback: inputRawCallbackType;
   public inputAvailableCallback: inputAvailableCallbackType;
+  public haltCallback: haltCallbackType;
 
   private memory: Uint16Array;
 
@@ -21,8 +22,9 @@ export class Sim {
 
     this.outputRawCallback = options.outputRawCallback;
     this.outputIntCallback = options.outputIntCallback;
-    this.inputRawCallback = options.inputRawCallback
-    this.inputAvailableCallback = options.inputAvailableCallback
+    this.inputRawCallback = options.inputRawCallback;
+    this.inputAvailableCallback = options.inputAvailableCallback;
+    this.haltCallback = options.haltCallback;
 
     this.reset();
   }
@@ -46,12 +48,16 @@ export class Sim {
 
     const sourceValue = this.getSourceValue(ins.source);
 
-    if(sourceValue == null) return //Don't execute instruction if source is not yet available
+    if (sourceValue === null) return; //Don't execute instruction if source is not yet available
 
     this.pc++;
 
     if ((!ins.zero || this.zero) && (!ins.carry || this.carry))
-      this.writeToDestination(ins.destination, sourceValue);
+      this.writeToDestination(
+        ins.destination,
+        sourceValue,
+        ins.source == sourceToVal.op
+      );
 
     this.limitRegistersTo16Bits();
   }
@@ -81,19 +87,23 @@ export class Sim {
         return this.memory[this.pc];
 
       case sourceToVal.in:
-        if(!this.inputAvailableCallback?.()) return null 
-        
-        return this.inputRawCallback?.() || 0
+        if (!this.inputAvailableCallback?.()) return null;
+
+        return this.inputRawCallback?.() || 0;
 
       case sourceToVal.in_avail:
-        return this.inputAvailableCallback?.() ? 0xFFFF : 0
+        return this.inputAvailableCallback?.() ? 0xffff : 0;
 
       default:
         return 0;
     }
   }
 
-  private writeToDestination(destination: number, value: number) {
+  private writeToDestination(
+    destination: number,
+    value: number,
+    sourceIsOp: boolean
+  ) {
     switch (destination) {
       case destinationToVal.acc:
         this.acc = value;
@@ -139,6 +149,11 @@ export class Sim {
       case destinationToVal.pc:
         this.pc = value;
         break;
+
+      case destinationToVal.halt:
+        this.pc -= sourceIsOp ? 2 : 1;
+        this.haltCallback();
+        break;
     }
   }
 
@@ -157,9 +172,11 @@ type SimConstructorOptions = Partial<{
   outputIntCallback: outputIntCallbackType;
   inputRawCallback: inputRawCallbackType;
   inputAvailableCallback: inputAvailableCallbackType;
+  haltCallback: haltCallbackType;
 }>;
 
 export type outputRawCallbackType = (n: number) => void;
 export type outputIntCallbackType = (n: number) => void;
 export type inputRawCallbackType = () => number;
 export type inputAvailableCallbackType = () => boolean;
+export type haltCallbackType = () => void;

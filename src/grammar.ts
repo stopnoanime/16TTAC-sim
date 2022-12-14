@@ -25,7 +25,7 @@ Grammar {
   varName = letter (letter | number)*
   
   src = "acc" | "adr" | "mem" | "in_avail" | "in"
-  dest = "acc" | "adr" | "mem" | "plus" | "minus" | "carry" | "zero" | "out_num" | "out" | "pc"
+  dest = "acc" | "adr" | "mem" | "plus" | "minus" | "carry" | "zero" | "out_num" | "out" | "pc" | "halt"
   flag = ("c" | "z") space
   
   comment = "//" (~"\n" any)*
