@@ -19,6 +19,11 @@ export const destinationToVal: { [k in destinationType]: number } = {
   pc: 8,
   out_num: 9,
   halt: 10,
+  shift_l: 11,
+  shift_r: 12,
+  mul: 13,
+  div: 14,
+  mod: 15,
 };
 
 export type sourceType = "acc" | "adr" | "mem" | "op" | "in" | "in_avail";
@@ -33,4 +38,9 @@ export type destinationType =
   | "out"
   | "pc"
   | "out_num"
-  | "halt";
+  | "halt"
+  | "shift_l"
+  | "shift_r"
+  | "mul"
+  | "div"
+  | "mod";

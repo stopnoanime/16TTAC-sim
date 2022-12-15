@@ -107,7 +107,6 @@ export class Sim {
     switch (destination) {
       case destinationToVal.acc:
         this.acc = value;
-        this.zero = this.acc == 0;
         break;
 
       case destinationToVal.adr:
@@ -120,13 +119,11 @@ export class Sim {
 
       case destinationToVal.plus:
         this.acc += value + (this.carry ? 1 : 0);
-        this.zero = this.acc == 0;
         this.carry = this.acc >= Sim.u16_max;
         break;
 
       case destinationToVal.minus:
         this.acc -= value + (this.carry ? 1 : 0);
-        this.zero = this.acc == 0;
         this.carry = this.acc < 0;
         break;
 
@@ -154,11 +151,36 @@ export class Sim {
         this.pc -= sourceIsOp ? 2 : 1;
         this.haltCallback();
         break;
+
+      case destinationToVal.shift_l:
+        if (value >= 32) this.acc = 0; //Js shift overflows if above 32
+        else this.acc <<= value;
+        break;
+
+      case destinationToVal.shift_r:
+        if (value >= 32) this.acc = 0; //Js shift overflows if above 32
+        else this.acc >>>= value;
+        break;
+
+      case destinationToVal.mul:
+        this.acc *= value;
+        this.carry = this.acc >= Sim.u16_max;
+        break;
+
+      case destinationToVal.div:
+        this.acc /= value;
+        break;
+
+      case destinationToVal.mod:
+        this.acc %= value;
+        this.zero = this.acc == 0;
+        break;
     }
   }
 
   private limitRegistersTo16Bits() {
     this.acc = this.uint16(this.acc);
+    this.zero = this.acc == 0;
     this.pc = this.uint16(this.pc);
   }
 

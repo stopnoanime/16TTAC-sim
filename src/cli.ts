@@ -29,14 +29,16 @@ const output = compiler.compile(String.raw`
   // end:
   //     end => pc
 
-  in_avail => out_num
-  in => out
+  32768 => acc
+  2 => mul
+  acc => out_num
 
-  'b' => out
-  
+  'c' => out c
+  'z' => out z
+
   acc => halt
 
-  'c' => out
+
 
 `);
 
