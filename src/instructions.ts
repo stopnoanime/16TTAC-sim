@@ -18,7 +18,6 @@ export const destinationToVal: { [k in destinationType]: number } = {
   zero: 6,
   out: 7,
   pc: 8,
-  out_num: 9,
   halt: 10,
   shift_l: 11,
   shift_r: 12,
@@ -47,7 +46,6 @@ export type destinationType =
   | "zero"
   | "out"
   | "pc"
-  | "out_num"
   | "halt"
   | "shift_l"
   | "shift_r"

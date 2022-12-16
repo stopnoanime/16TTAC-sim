@@ -42,10 +42,6 @@ function outRaw(n: number) {
   console.log(String.fromCharCode(n));
 }
 
-function outInt(n: number) {
-  console.log(n);
-}
-
 const input = [97];
 
 function inAvil() {
@@ -65,7 +61,6 @@ function halt() {
 
 const sim = new Sim({
   outputRawCallback: outRaw,
-  outputIntCallback: outInt,
   inputAvailableCallback: inAvil,
   inputRawCallback: inp,
   haltCallback: halt,
