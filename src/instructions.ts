@@ -26,6 +26,7 @@ export const destinationToVal: { [k in destinationType]: number } = {
   div: 14,
   mod: 15,
   push: 16,
+  call: 17,
 };
 
 export type sourceType =
@@ -53,4 +54,5 @@ export type destinationType =
   | "mul"
   | "div"
   | "mod"
-  | "push";
+  | "push"
+  | "call";

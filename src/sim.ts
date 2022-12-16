@@ -51,18 +51,21 @@ export class Sim {
     const rawIns = this.memory.at(this.pc);
     const ins = this.decodeInstruction(rawIns);
 
-    const sourceValue = this.getSourceValue(ins.source);
+    if ((!ins.zero || this.zero) && (!ins.carry || this.carry)) {
+      const sourceValue = this.getSourceValue(ins.source);
 
-    if (sourceValue === null) return; //Don't execute instruction if source is not yet available
+      if (sourceValue === null) return; //Don't execute instruction if source is not yet available
 
-    this.pc++;
+      this.pc++;
 
-    if ((!ins.zero || this.zero) && (!ins.carry || this.carry))
       this.writeToDestination(
         ins.destination,
         sourceValue,
         ins.source == sourceToVal.op
       );
+    } else {
+      this.pc += ins.source == sourceToVal.op ? 2 : 1;
+    }
 
     this.limitRegistersTo16Bits();
   }
@@ -88,8 +91,7 @@ export class Sim {
         return this.memory[this.adr];
 
       case sourceToVal.op:
-        this.pc++;
-        return this.memory[this.pc];
+        return this.memory[++this.pc];
 
       case sourceToVal.in:
         if (!this.inputAvailableCallback?.()) return null;
@@ -189,6 +191,13 @@ export class Sim {
       case destinationToVal.push:
         this.stack[this.stackPointer] = value;
         this.stackPointer = ++this.stackPointer % Sim.stack_size;
+        break;
+
+      case destinationToVal.call:
+        this.stack[this.stackPointer] = this.pc;
+        this.stackPointer = ++this.stackPointer % Sim.stack_size;
+        this.pc = value;
+        break;
     }
   }
 
