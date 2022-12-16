@@ -5,6 +5,7 @@ export const sourceToVal: { [k in sourceType]: number } = {
   op: 3,
   in: 4,
   in_avail: 5,
+  pop: 6,
 };
 
 export const destinationToVal: { [k in destinationType]: number } = {
@@ -24,9 +25,17 @@ export const destinationToVal: { [k in destinationType]: number } = {
   mul: 13,
   div: 14,
   mod: 15,
+  push: 16,
 };
 
-export type sourceType = "acc" | "adr" | "mem" | "op" | "in" | "in_avail";
+export type sourceType =
+  | "acc"
+  | "adr"
+  | "mem"
+  | "op"
+  | "in"
+  | "in_avail"
+  | "pop";
 export type destinationType =
   | "acc"
   | "adr"
@@ -43,4 +52,5 @@ export type destinationType =
   | "shift_r"
   | "mul"
   | "div"
-  | "mod";
+  | "mod"
+  | "push";

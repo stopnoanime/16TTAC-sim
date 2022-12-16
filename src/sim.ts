@@ -8,6 +8,8 @@ export class Sim {
   public haltCallback: haltCallbackType;
 
   private memory: Uint16Array;
+  private stack: Uint16Array;
+  private stackPointer: number;
 
   private acc: number;
   private adr: number;
@@ -16,9 +18,11 @@ export class Sim {
   private zero: boolean;
 
   private static u16_max = 65536;
+  private static stack_size = 256;
 
   constructor(options: SimConstructorOptions) {
     this.memory = new Uint16Array(Sim.u16_max);
+    this.stack = new Uint16Array(Sim.stack_size);
 
     this.outputRawCallback = options.outputRawCallback;
     this.outputIntCallback = options.outputIntCallback;
@@ -38,6 +42,7 @@ export class Sim {
     this.acc = 0;
     this.adr = 0;
     this.pc = 0;
+    this.stackPointer = 0;
     this.carry = false;
     this.zero = true;
   }
@@ -93,6 +98,11 @@ export class Sim {
 
       case sourceToVal.in_avail:
         return this.inputAvailableCallback?.() ? 0xffff : 0;
+
+      case sourceToVal.pop:
+        this.stackPointer =
+          this.stackPointer == 0 ? Sim.stack_size - 1 : this.stackPointer - 1;
+        return this.stack[this.stackPointer];
 
       default:
         return 0;
@@ -175,6 +185,10 @@ export class Sim {
         this.acc %= value;
         this.zero = this.acc == 0;
         break;
+
+      case destinationToVal.push:
+        this.stack[this.stackPointer] = value;
+        this.stackPointer = ++this.stackPointer % Sim.stack_size;
     }
   }
 

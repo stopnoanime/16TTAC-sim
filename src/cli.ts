@@ -29,12 +29,12 @@ const output = compiler.compile(String.raw`
   // end:
   //     end => pc
 
-  32768 => acc
-  2 => mul
-  acc => out_num
+  5 => push
+  10 => push
+  5 => acc
+  pop => mul
 
-  'c' => out c
-  'z' => out z
+  acc => out_num
 
   acc => halt
 
