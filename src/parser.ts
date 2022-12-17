@@ -1,5 +1,5 @@
 import ohm from "ohm-js";
-import { grammarDefinition } from "./grammar";
+import { Grammar } from "./grammar";
 
 export class Parser {
   private ohmGrammar: ohm.Grammar;
@@ -9,8 +9,10 @@ export class Parser {
   private instructions: instructionType[];
   private labels: labelType[];
 
+  private grammar = new Grammar();
+
   constructor() {
-    this.ohmGrammar = ohm.grammar(grammarDefinition);
+    this.ohmGrammar = ohm.grammar(this.grammar.grammarDefinition);
     this.ohmSemantics = this.ohmGrammar.createSemantics();
 
     const classThis = this;

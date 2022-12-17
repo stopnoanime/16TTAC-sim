@@ -1,6 +1,9 @@
 import { Sim } from "./sim";
 
 export class Instructions {
+  public sources: string[];
+  public destinations: string[];
+
   public sourceNameToOpcode: { [key: string]: number };
   public destinationNameToOpcode: { [key: string]: number };
 
@@ -24,6 +27,9 @@ export class Instructions {
       }
     });
 
+    this.sources = this.mapDictionary("source", dictionary);
+    this.destinations = this.mapDictionary("destination", dictionary);
+
     this.sourceNameToOpcode = this.mapNameToOpcode("source", dictionary);
     this.destinationNameToOpcode = this.mapNameToOpcode(
       "destination",
@@ -42,6 +48,13 @@ export class Instructions {
     this.sourceOperandOpcode = dictionary.find(
       (e) => e.type == "source" && e.name == "op"
     ).opcode;
+  }
+
+  private mapDictionary(
+    type: "source" | "destination",
+    dictionary: instructionDictionaryType
+  ) {
+    return dictionary.filter((e) => e.type == type).map((e) => e.name);
   }
 
   private mapNameToOpcode(
@@ -229,6 +242,13 @@ export const defaultInstructionDictionary: instructionDictionaryType = [
   {
     type: "destination",
     name: "div",
+    implementation: function (n) {
+      this.acc /= n;
+    },
+  },
+  {
+    type: "destination",
+    name: "div_s",
     implementation: function (n) {
       this.acc /= n;
     },

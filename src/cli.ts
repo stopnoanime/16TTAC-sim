@@ -4,7 +4,7 @@ const compiler = new Compiler();
 
 const output = compiler.compile(String.raw`
 -2 => acc
--1 => mul
+-1 => div_s
 acc => push
 
 output_number => call
