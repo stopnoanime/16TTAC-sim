@@ -3,8 +3,8 @@ import { Sim } from "./sim";
 const compiler = new Compiler();
 
 const output = compiler.compile(String.raw`
--2 => acc
--1 => div_s
+4 => acc
+-3 => mod_s
 acc => push
 
 output_number => call

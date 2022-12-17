@@ -241,6 +241,13 @@ export const defaultInstructionDictionary: instructionDictionaryType = [
   },
   {
     type: "destination",
+    name: "div_s",
+    implementation: function (n) {
+      this.acc = ((this.acc << 16) >> 16) / ((n << 16) >> 16);
+    },
+  },
+  {
+    type: "destination",
     name: "div",
     implementation: function (n) {
       this.acc /= n;
@@ -248,9 +255,9 @@ export const defaultInstructionDictionary: instructionDictionaryType = [
   },
   {
     type: "destination",
-    name: "div_s",
+    name: "mod_s",
     implementation: function (n) {
-      this.acc /= n;
+      this.acc = ((this.acc << 16) >> 16) % ((n << 16) >> 16);
     },
   },
   {
