@@ -1,6 +1,5 @@
 import ohm from "ohm-js";
 import { grammarDefinition } from "./grammar";
-import { destinationType, sourceType } from "./instructions";
 
 export class Parser {
   private ohmGrammar: ohm.Grammar;
@@ -120,8 +119,8 @@ export class Parser {
 }
 
 export type instructionType = {
-  source: sourceType;
-  destination: destinationType;
+  source: string;
+  destination: string;
   carry: boolean;
   zero: boolean;
   address: number;

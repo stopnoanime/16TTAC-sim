@@ -3,7 +3,10 @@ import { Sim } from "./sim";
 const compiler = new Compiler();
 
 const output = compiler.compile(String.raw`
-61459 => push
+-2 => acc
+-1 => mul
+acc => push
+
 output_number => call
 acc => halt
 
@@ -17,6 +20,7 @@ output_number:
 
   output_number_loop:
     10 => mod
+    0 => carry
     '0' => plus
     acc => push
 

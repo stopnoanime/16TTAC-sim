@@ -1,8 +1,9 @@
-import { destinationToVal, sourceToVal } from "./instructions";
+import { Instructions } from "./instructions";
 import { labelType, nestedNumber, Parser, variableType } from "./parser";
 
 export class Compiler {
   private parser = new Parser();
+  private instructions = new Instructions();
 
   public compile(input: string) {
     const pOut = this.parser.parse(input);
@@ -12,8 +13,8 @@ export class Compiler {
 
     pOut.instructions.forEach((ins) => {
       output.push(
-        (sourceToVal[ins.source] << 9) +
-          (destinationToVal[ins.destination] << 2) +
+        (this.instructions.sourceNameToOpcode[ins.source] << 9) +
+          (this.instructions.destinationNameToOpcode[ins.destination] << 2) +
           (ins.carry ? 2 : 0) +
           (ins.zero ? 1 : 0)
       );

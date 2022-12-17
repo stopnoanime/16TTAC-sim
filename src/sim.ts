@@ -1,4 +1,4 @@
-import { destinationToVal, sourceToVal } from "./instructions";
+import { Instructions } from "./instructions";
 
 export class Sim {
   public outputRawCallback: outputRawCallbackType;
@@ -6,20 +6,24 @@ export class Sim {
   public inputAvailableCallback: inputAvailableCallbackType;
   public haltCallback: haltCallbackType;
 
-  private memory: Uint16Array;
-  private stack: Uint16Array;
-  private stackPointer: number;
+  public memory: Uint16Array;
+  public stack: Uint16Array;
+  public stackPointer: number;
 
-  private acc: number;
-  private adr: number;
-  private pc: number;
-  private carry: boolean;
-  private zero: boolean;
+  public acc: number;
+  public adr: number;
+  public pc: number;
+  public carry: boolean;
+  public zero: boolean;
 
-  private static u16_max = 65536;
-  private static stack_size = 256;
+  public static u16_max = 65536;
+  public static stack_size = 256;
+
+  private instructions: Instructions;
 
   constructor(options: SimConstructorOptions) {
+    this.instructions = new Instructions();
+
     this.memory = new Uint16Array(Sim.u16_max);
     this.stack = new Uint16Array(Sim.stack_size);
 
@@ -50,22 +54,34 @@ export class Sim {
     const ins = this.decodeInstruction(rawIns);
 
     if ((!ins.zero || this.zero) && (!ins.carry || this.carry)) {
-      const sourceValue = this.getSourceValue(ins.source);
+      const sourceValue =
+        this.instructions.sourceOpcodeToImplementation[ins.source].call(this);
 
       if (sourceValue === null) return; //Don't execute instruction if source is not yet available
 
       this.pc++;
 
-      this.writeToDestination(
-        ins.destination,
+      this.instructions.destinationOpcodeToImplementation[ins.destination].call(
+        this,
         sourceValue,
-        ins.source == sourceToVal.op
+        ins.length
       );
     } else {
-      this.pc += ins.source == sourceToVal.op ? 2 : 1;
+      this.pc += ins.length;
     }
 
     this.limitRegistersTo16Bits();
+  }
+
+  public pop() {
+    this.stackPointer =
+      this.stackPointer == 0 ? Sim.stack_size - 1 : this.stackPointer - 1;
+    return this.stack[this.stackPointer];
+  }
+
+  public push(n: number) {
+    this.stack[this.stackPointer] = n;
+    this.stackPointer = ++this.stackPointer % Sim.stack_size;
   }
 
   private decodeInstruction(ins: number) {
@@ -74,130 +90,15 @@ export class Sim {
       destination: (ins >>> 2) & 127,
       carry: (ins >>> 1) & 1,
       zero: ins & 1,
+      length:
+        ((ins >>> 9) & 127) == this.instructions.sourceOperandOpcode ? 2 : 1,
     };
-  }
-
-  private getSourceValue(source: number) {
-    switch (source) {
-      case sourceToVal.acc:
-        return this.acc;
-
-      case sourceToVal.adr:
-        return this.adr;
-
-      case sourceToVal.mem:
-        return this.memory[this.adr];
-
-      case sourceToVal.op:
-        return this.memory[++this.pc];
-
-      case sourceToVal.in:
-        if (!this.inputAvailableCallback?.()) return null;
-
-        return this.inputRawCallback?.() || 0;
-
-      case sourceToVal.in_avail:
-        return this.inputAvailableCallback?.() ? 0xffff : 0;
-
-      case sourceToVal.pop:
-        this.stackPointer =
-          this.stackPointer == 0 ? Sim.stack_size - 1 : this.stackPointer - 1;
-        return this.stack[this.stackPointer];
-
-      default:
-        return 0;
-    }
-  }
-
-  private writeToDestination(
-    destination: number,
-    value: number,
-    sourceIsOp: boolean
-  ) {
-    switch (destination) {
-      case destinationToVal.acc:
-        this.acc = value;
-        break;
-
-      case destinationToVal.adr:
-        this.adr = value;
-        break;
-
-      case destinationToVal.mem:
-        this.memory[this.adr] = value;
-        break;
-
-      case destinationToVal.plus:
-        this.acc += value + (this.carry ? 1 : 0);
-        this.carry = this.acc >= Sim.u16_max;
-        break;
-
-      case destinationToVal.minus:
-        this.acc -= value + (this.carry ? 1 : 0);
-        this.carry = this.acc < 0;
-        break;
-
-      case destinationToVal.carry:
-        this.carry = value != 0;
-        break;
-
-      case destinationToVal.zero:
-        this.zero = value != 0;
-        break;
-
-      case destinationToVal.out:
-        this.outputRawCallback?.(value);
-        break;
-
-      case destinationToVal.pc:
-        this.pc = value;
-        break;
-
-      case destinationToVal.halt:
-        this.pc -= sourceIsOp ? 2 : 1;
-        this.haltCallback();
-        break;
-
-      case destinationToVal.shift_l:
-        if (value >= 32) this.acc = 0; //Js shift overflows if above 32
-        else this.acc <<= value;
-        break;
-
-      case destinationToVal.shift_r:
-        if (value >= 32) this.acc = 0; //Js shift overflows if above 32
-        else this.acc >>>= value;
-        break;
-
-      case destinationToVal.mul:
-        this.acc *= value;
-        this.carry = this.acc >= Sim.u16_max;
-        break;
-
-      case destinationToVal.div:
-        this.acc /= value;
-        break;
-
-      case destinationToVal.mod:
-        this.acc %= value;
-        this.zero = this.acc == 0;
-        break;
-
-      case destinationToVal.push:
-        this.stack[this.stackPointer] = value;
-        this.stackPointer = ++this.stackPointer % Sim.stack_size;
-        break;
-
-      case destinationToVal.call:
-        this.stack[this.stackPointer] = this.pc;
-        this.stackPointer = ++this.stackPointer % Sim.stack_size;
-        this.pc = value;
-        break;
-    }
   }
 
   private limitRegistersTo16Bits() {
     this.acc = this.uint16(this.acc);
     this.zero = this.acc == 0;
+
     this.pc = this.uint16(this.pc);
   }
 
