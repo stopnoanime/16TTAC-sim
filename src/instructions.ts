@@ -27,8 +27,8 @@ export class Instructions {
       }
     });
 
-    this.sources = this.mapDictionary("source", dictionary);
-    this.destinations = this.mapDictionary("destination", dictionary);
+    this.sources = this.mapNames("source", dictionary);
+    this.destinations = this.mapNames("destination", dictionary);
 
     this.sourceNameToOpcode = this.mapNameToOpcode("source", dictionary);
     this.destinationNameToOpcode = this.mapNameToOpcode(
@@ -50,7 +50,7 @@ export class Instructions {
     ).opcode;
   }
 
-  private mapDictionary(
+  private mapNames(
     type: "source" | "destination",
     dictionary: instructionDictionaryType
   ) {

@@ -1,40 +1,50 @@
-import { Instructions } from "./instructions";
+import { instructionDictionaryType, Instructions } from "./instructions";
 
 export class Grammar {
-  private instructions = new Instructions();
+  private instructions: Instructions;
+  public grammarDefinition: string;
 
-  public grammarDefinition = String.raw`
-  Grammar {
-    Exp = Token*
-    
-    Token = 
-      varType  varName ArrDim ("=" (valueLiteral | ArrLiteral))?  -- variable
-    | varName ":" -- label
-    | (src | valueLiteral | varName) "=>" dest #space flag? flag?  -- ins
+  constructor(dictionary?: instructionDictionaryType) {
+    this.instructions = new Instructions(dictionary);
+
+    this.grammarDefinition = String.raw`
+      Grammar {
+        Exp = Token*
         
-    ArrDim = ( "[" number "]" )*
-    ArrLiteral = ("[" ListOf<ArrLiteral, ","> "]")  -- array
-    | valueLiteral
+        Token = 
+          varType  varName ArrDim ("=" (valueLiteral | ArrLiteral))?  -- variable
+        | varName ":" -- label
+        | (src | valueLiteral | varName) "=>" dest flag? flag?  -- ins
+            
+        ArrDim = ( "[" number "]" )*
+        ArrLiteral = ("[" ListOf<ArrLiteral, ","> "]")  -- array
+        | valueLiteral
+        
+        number = "-"? digit+
+        charLiteral = "'"any"'"
+        valueLiteral = hexLiteral | number | charLiteral | stringLiteral
+        hexLiteral = "0x" hexDigit+
+        stringLiteral = "\"" doubleStringCharacter* "\""
     
-    number = "-"? digit+
-    charLiteral = "'"any"'"
-    valueLiteral = hexLiteral | number | charLiteral | stringLiteral
-    hexLiteral = "0x" hexDigit+
-    stringLiteral = "\"" doubleStringCharacter* "\""
-
-    doubleStringCharacter =
-      "\\" any           -- escaped
-      | ~"\"" any          -- nonEscaped
-    
-    varType = "word"
-    varName = letter (alnum | "_" | "-")*
-    
-    src = ${this.instructions.sources.map((e) => `"${e}"`).join("|")}
-    dest = ${this.instructions.destinations.map((e) => `"${e}"`).join("|")}
-    flag = ("c" | "z") space
-    
-    comment = "//" (~"\n" any)*
-    space += comment
+        doubleStringCharacter =
+          "\\" any           -- escaped
+          | ~"\"" any          -- nonEscaped
+        
+        varType = "word"
+        varName = letter (alnum | "_" | "-")*
+        
+        // &space is required for src/dest with same prefix as another src/dest to work
+        src = ${this.instructions.sources
+          .map((e) => `"${e}" &(space | "=")`)
+          .join("|")}
+        dest = ${this.instructions.destinations
+          .map((e) => `"${e}" &space`)
+          .join("|")}
+        flag = ("c" | "z") space
+        
+        comment = "//" (~"\n" any)*
+        space += comment
+      }
+      `;
   }
-  `;
 }

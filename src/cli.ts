@@ -1,10 +1,22 @@
 import { Compiler } from "./compiler";
 import { Sim } from "./sim";
-const compiler = new Compiler();
+
+import { defaultInstructionDictionary } from "./instructions";
+
+const newins = defaultInstructionDictionary.slice();
+newins.push({
+  type: "source",
+  name: "acc2",
+  implementation() {
+    return 2;
+  },
+});
+
+const compiler = new Compiler(newins);
 
 const output = compiler.compile(String.raw`
-4 => acc
--3 => mod_s
+acc2 => acc
+3 => mod
 acc => push
 
 output_number => call
@@ -63,12 +75,15 @@ function halt() {
   running = false;
 }
 
-const sim = new Sim({
-  outputRawCallback: outRaw,
-  inputAvailableCallback: inAvil,
-  inputRawCallback: inp,
-  haltCallback: halt,
-});
+const sim = new Sim(
+  {
+    outputRawCallback: outRaw,
+    inputAvailableCallback: inAvil,
+    inputRawCallback: inp,
+    haltCallback: halt,
+  },
+  newins
+);
 
 sim.initializeMemory(output);
 

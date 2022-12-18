@@ -1,9 +1,14 @@
-import { Instructions } from "./instructions";
+import { instructionDictionaryType, Instructions } from "./instructions";
 import { labelType, nestedNumber, Parser, variableType } from "./parser";
 
 export class Compiler {
-  private parser = new Parser();
-  private instructions = new Instructions();
+  private parser: Parser;
+  private instructions: Instructions;
+
+  constructor(dictionary?: instructionDictionaryType) {
+    this.parser = new Parser(dictionary);
+    this.instructions = new Instructions(dictionary);
+  }
 
   public compile(input: string) {
     const pOut = this.parser.parse(input);

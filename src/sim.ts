@@ -1,4 +1,4 @@
-import { Instructions } from "./instructions";
+import { instructionDictionaryType, Instructions } from "./instructions";
 
 export class Sim {
   public outputRawCallback: outputRawCallbackType;
@@ -21,8 +21,11 @@ export class Sim {
 
   private instructions: Instructions;
 
-  constructor(options: SimConstructorOptions) {
-    this.instructions = new Instructions();
+  constructor(
+    options: SimConstructorOptions,
+    dictionary?: instructionDictionaryType
+  ) {
+    this.instructions = new Instructions(dictionary);
 
     this.memory = new Uint16Array(Sim.u16_max);
     this.stack = new Uint16Array(Sim.stack_size);

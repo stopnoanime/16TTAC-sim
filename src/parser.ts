@@ -1,5 +1,6 @@
 import ohm from "ohm-js";
 import { Grammar } from "./grammar";
+import { instructionDictionaryType } from "./instructions";
 
 export class Parser {
   private ohmGrammar: ohm.Grammar;
@@ -9,9 +10,11 @@ export class Parser {
   private instructions: instructionType[];
   private labels: labelType[];
 
-  private grammar = new Grammar();
+  private grammar: Grammar;
 
-  constructor() {
+  constructor(dictionary?: instructionDictionaryType) {
+    this.grammar = new Grammar(dictionary);
+
     this.ohmGrammar = ohm.grammar(this.grammar.grammarDefinition);
     this.ohmSemantics = this.ohmGrammar.createSemantics();
 
@@ -31,7 +34,7 @@ export class Parser {
         });
       },
 
-      Token_ins(src, _, dest, __, f0, f1) {
+      Token_ins(src, _, dest, f0, f1) {
         const isOperand = src.ctorName != "src";
 
         classThis.instructions.push({
@@ -84,6 +87,14 @@ export class Parser {
       },
 
       flag(s, _) {
+        return s.sourceString;
+      },
+
+      dest(s, _) {
+        return s.sourceString;
+      },
+
+      src(s, _) {
         return s.sourceString;
       },
 
