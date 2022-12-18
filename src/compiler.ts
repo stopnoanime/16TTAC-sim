@@ -30,6 +30,7 @@ export class Compiler {
         output.push(
           this.getReferenceAddress(
             ins.operandValue as string,
+            ins.sourceErrorMessage,
             variablesOffset,
             pOut.labels,
             pOut.variables
@@ -71,11 +72,8 @@ export class Compiler {
     value: nestedNumber
   ): number {
     if (Array.isArray(value)) {
-      if (pos.length == 0)
-        throw "Array initialization value is too deep for array structure";
-
-      const pop = pos.shift();
-      if (pop >= value.length) return 0; //If element position is array is larger than given initial value size, default to 0
+      const pop = pos.length == 0 ? 0 : pos.shift(); // Value is array and pos has no elements = value literal is deeper than array structure, default to first subarray element
+      if (pop >= value.length) return 0; //If element position in array is larger than given initial value size, default to 0
 
       return this.getVariableValueAtPosition(pos, value[pop]);
     } else return value; // value is number
@@ -83,6 +81,7 @@ export class Compiler {
 
   private getReferenceAddress(
     name: string,
+    errorMessage: string,
     variablesOffset: number,
     labels: labelType[],
     variables: variableType[]
@@ -93,7 +92,8 @@ export class Compiler {
 
     const foundVar = variables.find((v) => v.name == name);
 
-    if (!foundVar) throw "reference not found";
+    if (!foundVar)
+      throw errorMessage + `Reference with name "${name}" not found.`;
 
     return foundVar.address + variablesOffset;
   }

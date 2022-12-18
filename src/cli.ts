@@ -15,8 +15,9 @@ newins.push({
 const compiler = new Compiler(newins);
 
 const output = compiler.compile(String.raw`
-acc2 => acc
-3 => mod
+word arr[10] = [100,100,100,[["a"],'a']]
+-32769=> acc
+
 acc => push
 
 output_number => call

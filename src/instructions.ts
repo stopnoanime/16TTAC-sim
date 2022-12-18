@@ -1,3 +1,4 @@
+import { uint16_max } from "./common";
 import { Sim } from "./sim";
 
 export class Instructions {
@@ -168,7 +169,7 @@ export const defaultInstructionDictionary: instructionDictionaryType = [
     name: "plus",
     implementation: function (n) {
       this.acc += n + (this.carry ? 1 : 0);
-      this.carry = this.acc >= Sim.u16_max;
+      this.carry = this.acc > uint16_max;
     },
   },
   {
@@ -236,7 +237,7 @@ export const defaultInstructionDictionary: instructionDictionaryType = [
     name: "mul",
     implementation: function (n) {
       this.acc *= n;
-      this.carry = this.acc >= Sim.u16_max;
+      this.carry = this.acc > uint16_max;
     },
   },
   {

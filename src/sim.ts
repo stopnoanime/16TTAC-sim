@@ -1,3 +1,4 @@
+import { stack_size, uint16_max } from "./common";
 import { instructionDictionaryType, Instructions } from "./instructions";
 
 export class Sim {
@@ -16,9 +17,6 @@ export class Sim {
   public carry: boolean;
   public zero: boolean;
 
-  public static u16_max = 65536;
-  public static stack_size = 256;
-
   private instructions: Instructions;
 
   constructor(
@@ -27,8 +25,8 @@ export class Sim {
   ) {
     this.instructions = new Instructions(dictionary);
 
-    this.memory = new Uint16Array(Sim.u16_max);
-    this.stack = new Uint16Array(Sim.stack_size);
+    this.memory = new Uint16Array(uint16_max + 1);
+    this.stack = new Uint16Array(stack_size);
 
     this.outputRawCallback = options.outputRawCallback;
     this.inputRawCallback = options.inputRawCallback;
@@ -78,13 +76,13 @@ export class Sim {
 
   public pop() {
     this.stackPointer =
-      this.stackPointer == 0 ? Sim.stack_size - 1 : this.stackPointer - 1;
+      this.stackPointer == 0 ? stack_size - 1 : this.stackPointer - 1;
     return this.stack[this.stackPointer];
   }
 
   public push(n: number) {
     this.stack[this.stackPointer] = n;
-    this.stackPointer = ++this.stackPointer % Sim.stack_size;
+    this.stackPointer = ++this.stackPointer % stack_size;
   }
 
   private decodeInstruction(ins: number) {

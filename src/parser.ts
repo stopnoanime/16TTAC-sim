@@ -1,4 +1,5 @@
 import ohm from "ohm-js";
+import { int16_min, uint16_max } from "./common";
 import { Grammar } from "./grammar";
 import { instructionDictionaryType } from "./instructions";
 
@@ -22,6 +23,8 @@ export class Parser {
 
     this.ohmSemantics.addOperation("eval", {
       Token_variable(_, name, arrDim, __, value) {
+        classThis.checkIfReferenceAlreadyExists(name.eval(), name);
+
         const arr = arrDim.eval() as number[];
         const isArr = arr.length != 0;
 
@@ -43,6 +46,7 @@ export class Parser {
           carry: f0.eval() == "c" || f1.eval() == "c",
           zero: f0.eval() == "z" || f1.eval() == "z",
           address: classThis.nextTokenAddress(classThis.instructions),
+          sourceErrorMessage: src.source.getLineAndColumnMessage(),
           size: isOperand ? 2 : 1,
           ...(isOperand && {
             operandType: src.ctorName == "varName" ? "reference" : "literal",
@@ -52,6 +56,8 @@ export class Parser {
       },
 
       Token_label(name, _) {
+        classThis.checkIfReferenceAlreadyExists(name.eval(), name);
+
         classThis.labels.push({
           name: name.eval(),
           address: classThis.nextTokenAddress(classThis.instructions),
@@ -71,11 +77,15 @@ export class Parser {
       },
 
       number(_, __) {
-        return parseInt(this.sourceString);
+        const n = parseInt(this.sourceString);
+        classThis.checkIfNumberOutOfRange(n, this);
+        return n;
       },
 
       hexLiteral(_, __) {
-        return parseInt(this.sourceString, 16);
+        const n = parseInt(this.sourceString, 16);
+        classThis.checkIfNumberOutOfRange(n, this);
+        return n;
       },
 
       charLiteral(_, c, __) {
@@ -115,7 +125,7 @@ export class Parser {
 
     const match = this.ohmGrammar.match(input);
 
-    if (match.failed()) throw "syntax error";
+    if (match.failed()) throw match.message;
 
     this.ohmSemantics(match).eval();
 
@@ -129,6 +139,25 @@ export class Parser {
   public nextTokenAddress(tokens: { address: number; size: number }[]) {
     return tokens.length == 0 ? 0 : tokens.at(-1).address + tokens.at(-1).size;
   }
+
+  private checkIfNumberOutOfRange(n: number, node: ohm.Node) {
+    if (n > uint16_max || n < int16_min)
+      throw (
+        node.source.getLineAndColumnMessage() +
+        `Literal value "${n}" is outside of valid range.`
+      );
+  }
+
+  private checkIfReferenceAlreadyExists(name: string, node: ohm.Node) {
+    if (
+      this.variables.find((v) => v.name == name) ||
+      this.labels.find((l) => l.name == name)
+    )
+      throw (
+        node.source.getLineAndColumnMessage() +
+        `Reference with name "${name}" is already defined.`
+      );
+  }
 }
 
 export type instructionType = {
@@ -138,6 +167,7 @@ export type instructionType = {
   zero: boolean;
   address: number;
   size: number;
+  sourceErrorMessage: string;
   operandType?: "literal" | "reference";
   operandValue?: number | number[] | string;
 };
