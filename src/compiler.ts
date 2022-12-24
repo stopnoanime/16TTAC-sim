@@ -26,26 +26,27 @@ export class Compiler {
 
       if (ins.source != "op") return;
 
-      if (ins.operandType == "reference")
+      if (ins.operandReference)
         output.push(
           this.getReferenceAddress(
-            ins.operandValue as string,
+            ins.operandReference,
             ins.sourceErrorMessage,
             variablesOffset,
             pOut.labels,
             pOut.variables
           )
         );
-      else
-        output.push(
-          this.getVariableValueAtPosition([0], ins.operandValue as nestedNumber)
-        );
+      else output.push(ins.operandValue);
     });
 
     pOut.variables.forEach((vr) => {
       output.push(
         // @ts-ignore
-        ...this.getVariableSubArray([], vr.dimension, vr.value).flat(Infinity)
+        ...this.getVariableSubArray(
+          vr.dimension,
+          vr.value,
+          vr.valueErrorMessage
+        ).flat(Infinity)
       );
     });
 
@@ -53,30 +54,36 @@ export class Compiler {
   }
 
   private getVariableSubArray(
-    dimBefore: number[],
     dim: number[],
-    value: nestedNumber
+    value: nestedNumber,
+    errMsg: string
   ): nestedNumber[] {
-    if (dim.length == 1)
-      return Array.from(Array(dim[0])).map((_, i) =>
-        this.getVariableValueAtPosition([...dimBefore, i], value)
-      );
-    else
-      return Array.from(Array(dim[0])).map((_, i) =>
-        this.getVariableSubArray([...dimBefore, i], dim.slice(1), value)
-      );
+    if (Array.isArray(value) && value.length > dim[0])
+      throw errMsg + "Value literal is too long.";
+    return Array.from(Array(dim[0])).map((_, i) => {
+      if (dim.length == 1) {
+        const val = this.getVariableValueAtPosition(i, value);
+        if (Array.isArray(val)) throw errMsg + "Value literal is too deep.";
+        return val;
+      } else {
+        return this.getVariableSubArray(
+          dim.slice(1),
+          this.getVariableValueAtPosition(i, value),
+          errMsg
+        );
+      }
+    });
   }
 
   private getVariableValueAtPosition(
-    pos: number[],
+    pos: number,
     value: nestedNumber
-  ): number {
+  ): nestedNumber {
     if (Array.isArray(value)) {
-      const pop = pos.length == 0 ? 0 : pos.shift(); // Value is array and pos has no elements = value literal is deeper than array structure, default to first subarray element
-      if (pop >= value.length) return 0; //If element position in array is larger than given initial value size, default to 0
+      if (pos >= value.length) return 0;
 
-      return this.getVariableValueAtPosition(pos, value[pop]);
-    } else return value; // value is number
+      return value[pos];
+    } else return value;
   }
 
   private getReferenceAddress(

@@ -34,6 +34,7 @@ export class Parser {
           size: isArr ? arr.reduce((a, c) => (a *= c)) : 1,
           dimension: isArr ? arr : [1], //Treat normal variable as one dimensional array with length 1
           value: value.eval()[0] || 0,
+          valueErrorMessage: value.source.getLineAndColumnMessage(),
         });
       },
 
@@ -48,10 +49,16 @@ export class Parser {
           address: classThis.nextTokenAddress(classThis.instructions),
           sourceErrorMessage: src.source.getLineAndColumnMessage(),
           size: isOperand ? 2 : 1,
-          ...(isOperand && {
-            operandType: src.ctorName == "varName" ? "reference" : "literal",
-            operandValue: src.eval(),
-          }),
+          ...(isOperand &&
+            src.ctorName == "varName" && {
+              //Source is a reference to variable
+              operandReference: src.eval(),
+            }),
+          ...(isOperand &&
+            src.ctorName != "varName" && {
+              //Source is literal value
+              operandValue: src.eval(),
+            }),
         });
       },
 
@@ -168,8 +175,8 @@ export type instructionType = {
   address: number;
   size: number;
   sourceErrorMessage: string;
-  operandType?: "literal" | "reference";
-  operandValue?: number | number[] | string;
+  operandReference?: string;
+  operandValue?: number;
 };
 
 export type labelType = {
@@ -185,4 +192,5 @@ export type variableType = {
   size: number;
   dimension: number[];
   value: nestedNumber;
+  valueErrorMessage: string;
 };

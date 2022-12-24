@@ -12,17 +12,18 @@ export class Grammar {
         Exp = Token*
         
         Token = 
-          varType  varName ArrDim ("=" (valueLiteral | ArrLiteral))?  -- variable
+          varType  varName ArrDim ("=" (extendedValueLiteral | ArrLiteral))?  -- variable
         | varName ":" -- label
         | (src | valueLiteral | varName) "=>" dest flag? flag?  -- ins
             
         ArrDim = ( "[" number "]" )*
         ArrLiteral = ("[" ListOf<ArrLiteral, ","> "]")  -- array
-        | valueLiteral
+        | extendedValueLiteral
         
         number = "-"? digit+
         charLiteral = "'"any"'"
-        valueLiteral = hexLiteral | number | charLiteral | stringLiteral
+        valueLiteral = hexLiteral | number | charLiteral
+        extendedValueLiteral = valueLiteral | stringLiteral 
         hexLiteral = "0x" hexDigit+
         stringLiteral = "\"" doubleStringCharacter* "\""
     

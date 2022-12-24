@@ -15,8 +15,8 @@ newins.push({
 const compiler = new Compiler(newins);
 
 const output = compiler.compile(String.raw`
-word arr[10] = [100,100,100,[["a"],'a']]
--32769=> acc
+word arr[4][2] = [[100,3],100,100,"a"]
+'a' => acc
 
 acc => push
 
