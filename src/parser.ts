@@ -100,7 +100,7 @@ export class Parser {
       },
 
       stringLiteral(_, s, __) {
-        return [...s.sourceString].map((s) => s.charCodeAt(0));
+        return [...[...s.sourceString].map((s) => s.charCodeAt(0)), 0];
       },
 
       flag(s, _) {
