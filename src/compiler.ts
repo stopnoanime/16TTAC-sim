@@ -59,11 +59,12 @@ export class Compiler {
     errMsg: string
   ): nestedNumber[] {
     if (Array.isArray(value) && value.length > dim[0])
-      throw errMsg + "Value literal is too long.";
+      throw new Error(errMsg + "Value literal is too long.");
     return Array.from(Array(dim[0])).map((_, i) => {
       if (dim.length == 1) {
         const val = this.getVariableValueAtPosition(i, value);
-        if (Array.isArray(val)) throw errMsg + "Value literal is too deep.";
+        if (Array.isArray(val))
+          throw new Error(errMsg + "Value literal is too deep.");
         return val;
       } else {
         return this.getVariableSubArray(
@@ -100,7 +101,9 @@ export class Compiler {
     const foundVar = variables.find((v) => v.name == name);
 
     if (!foundVar)
-      throw errorMessage + `Reference with name "${name}" not found.`;
+      throw new Error(
+        errorMessage + `Reference with name "${name}" not found.`
+      );
 
     return foundVar.address + variablesOffset;
   }
