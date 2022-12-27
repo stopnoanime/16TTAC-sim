@@ -62,8 +62,8 @@ it("Compiles basic variable", () => {
 
 it("Compiles array", () => {
   expect(
-    compiler.compile(parser.parse(String.raw`word var[4] = "abc"`))
-  ).toMatchObject({ 0: 97, 1: 98, 2: 99, 3: 0 });
+    compiler.compile(parser.parse(String.raw`word var[5] = "abc"`))
+  ).toMatchObject({ 0: 97, 1: 98, 2: 99, 3: 0, 4: 0 });
 });
 
 it("Compiles multidimensional array", () => {

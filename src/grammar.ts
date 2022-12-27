@@ -12,7 +12,7 @@ export class Grammar {
         Exp = Token*
         
         Token = 
-          varType  varName ArrDim ("=" (extendedValueLiteral | ArrLiteral))?  -- variable
+          varType varName ArrDim ("=" (extendedValueLiteral | ArrLiteral))?  -- variable
         | varName ":" -- label
         | (src | valueLiteral | varName) "=>" dest flag? flag?  -- ins
             

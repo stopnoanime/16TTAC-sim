@@ -120,10 +120,6 @@ export class Parser {
       _iter(...children) {
         return children.map((c) => c.eval());
       },
-
-      _terminal() {
-        return this.sourceString as any;
-      },
     });
   }
 

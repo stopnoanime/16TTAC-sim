@@ -39,13 +39,20 @@ it("Simulates input", () => {
     },
   });
   sim.initializeMemory(
-    compiler.compile(parser.parse(String.raw`IN => PUSH IN => PUSH IN => PUSH`))
+    compiler.compile(
+      parser.parse(
+        String.raw`IN => PUSH IN => PUSH IN => PUSH IN => PUSH IN => PUSH`
+      )
+    )
   );
+  sim.singleStep();
+  sim.singleStep();
   sim.singleStep();
   sim.singleStep();
   sim.singleStep();
 
   expect(sim.stack).toMatchObject({ 0: 10, 1: 200, 2: 3000, 3: 0 });
+  expect(sim.stackPointer).toBe(3);
 });
 
 it("Simulates halt", () => {
@@ -75,36 +82,38 @@ it("Simulates complicated program", () => {
   sim.initializeMemory(
     compiler.compile(
       parser.parse(String.raw`
-    15459 => PUSH
-    output_number => CALL
-    
-    ACC => HALT
-    
-    output_number:
-      POP => ACC
-      POP => ADR
-      ACC => PUSH
-      ADR => ACC
-      0 => PUSH
+      word var = 15459
+      var => ADR
+      MEM => PUSH
+      output_number => CALL
       
-      output_number_loop:
-        10 => MOD
-        0 => CARRY
-        '0' => PLUS
-        ACC => PUSH
-    
-        ADR => ACC
-        10 => DIV
-        ACC => ADR
-        
-      output_number_out => PC z
-      output_number_loop => PC
+      ACC => HALT
       
-      output_number_out:
+      output_number:
         POP => ACC
-        POP => PC z
-        ACC => OUT
-      output_number_out => PC`)
+        POP => ADR
+        ACC => PUSH
+        ADR => ACC
+        0 => PUSH
+        
+        output_number_loop:
+          10 => MOD
+          0 => CARRY
+          '0' => PLUS
+          ACC => PUSH
+      
+          ADR => ACC
+          10 => DIV
+          ACC => ADR
+          
+        output_number_out => PC z
+        output_number_loop => PC
+        
+        output_number_out:
+          POP => ACC
+          POP => PC z
+          ACC => OUT
+        output_number_out => PC`)
     )
   );
 

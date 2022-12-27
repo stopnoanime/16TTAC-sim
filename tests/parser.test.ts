@@ -95,4 +95,9 @@ it("Throws error when literal value is too low", () => {
 
 it("Throws error when reference name is redeclared", () => {
   expect(() => parser.parse(String.raw`name: word name`)).toThrow();
+  expect(() => parser.parse(String.raw`word name2 name2:`)).toThrow();
+});
+
+it("Throws error on syntax error", () => {
+  expect(() => parser.parse(String.raw`SRC -> DEST`)).toThrow();
 });
