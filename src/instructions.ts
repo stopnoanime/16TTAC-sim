@@ -19,36 +19,29 @@ export class Instructions {
   public sourceOperandName: string;
 
   constructor(dictionary = defaultInstructionDictionary) {
-    let automaticOpcode = 0;
-
-    dictionary.forEach((e) => {
-      if (e.opcode === undefined) {
-        while (this.opcodeAlreadyUsed(automaticOpcode, dictionary))
-          automaticOpcode++;
-        e.opcode = automaticOpcode;
-      }
-    });
-
-    this.sources = this.mapNames("source", dictionary);
-    this.destinations = this.mapNames("destination", dictionary);
-
-    this.sourceNameToOpcode = this.mapNameToOpcode("source", dictionary);
-    this.destinationNameToOpcode = this.mapNameToOpcode(
+    const sourceDictionary = this.getSubDictionary("source", dictionary);
+    const destinationDictionary = this.getSubDictionary(
       "destination",
       dictionary
     );
 
-    this.sourceOpcodeToImplementation = this.mapOpcodeToImplementation(
-      "source",
-      dictionary
-    );
+    this.automaticOpcode(sourceDictionary);
+    this.automaticOpcode(destinationDictionary);
+
+    this.sources = this.mapNames(sourceDictionary);
+    this.destinations = this.mapNames(destinationDictionary);
+
+    this.sourceNameToOpcode = this.mapNameToOpcode(sourceDictionary);
+    this.destinationNameToOpcode = this.mapNameToOpcode(destinationDictionary);
+
+    this.sourceOpcodeToImplementation =
+      this.mapOpcodeToImplementation(sourceDictionary);
     this.destinationOpcodeToImplementation = this.mapOpcodeToImplementation(
-      "destination",
-      dictionary
+      destinationDictionary
     );
 
-    const foundOperand = dictionary.find(
-      (e) => e.type == "source" && e.isOperand
+    const foundOperand = sourceDictionary.find(
+      (e) => (e as sourceType).isOperand
     );
 
     if (!foundOperand)
@@ -58,44 +51,47 @@ export class Instructions {
     this.sourceOperandName = foundOperand.name;
   }
 
-  private mapNames(
+  private getSubDictionary(
     type: "source" | "destination",
     dictionary: instructionDictionaryType
   ) {
+    return dictionary.filter((e) => e.type == type).map((v) => ({ ...v }));
+  }
+
+  private automaticOpcode(dictionary: instructionDictionaryType) {
+    let automaticOpcode = 0;
+    dictionary.forEach((e) => {
+      if (e.opcode === undefined) {
+        while (dictionary.find((e) => e.opcode === automaticOpcode))
+          automaticOpcode++;
+        e.opcode = automaticOpcode;
+      }
+    });
+  }
+
+  private mapNames(dictionary: instructionDictionaryType) {
     return dictionary
-      .filter((e) => e.type == type && !(e as any).isOperand)
+      .filter((e) => !(e as sourceType).isOperand)
       .map((e) => e.name);
   }
 
-  private mapNameToOpcode(
-    type: "source" | "destination",
-    dictionary: instructionDictionaryType
-  ) {
-    return dictionary
-      .filter((e) => e.type == type)
-      .reduce((obj, cur) => {
-        obj[cur.name] = cur.opcode;
-        return obj;
-      }, {} as any);
+  private mapNameToOpcode(dictionary: instructionDictionaryType) {
+    return this.mapXToY(dictionary, "name", "opcode");
   }
 
-  private mapOpcodeToImplementation(
-    type: "source" | "destination",
-    dictionary: instructionDictionaryType
-  ) {
-    return dictionary
-      .filter((e) => e.type == type)
-      .reduce((obj, cur) => {
-        obj[cur.opcode] = cur.implementation;
-        return obj;
-      }, {} as any);
+  private mapOpcodeToImplementation(dictionary: instructionDictionaryType) {
+    return this.mapXToY(dictionary, "opcode", "implementation");
   }
 
-  private opcodeAlreadyUsed(
-    opcode: number,
-    dictionary: instructionDictionaryType
+  private mapXToY(
+    dictionary: instructionDictionaryType,
+    x: Exclude<keyof destinationType, "implementation">,
+    y: keyof destinationType
   ) {
-    return dictionary.find((e) => e.opcode === opcode);
+    return dictionary.reduce((obj, cur) => {
+      obj[cur[x]] = cur[y];
+      return obj;
+    }, {} as any);
   }
 }
 
