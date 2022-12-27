@@ -8,7 +8,8 @@
     "build": "npx tsc",
     "prettier": "npx prettier --write .",
     "prepare": "husky install",
-    "test": "jest"
+    "test": "jest",
+    "coverage": "jest --coverage"
   },
   "repository": {
     "type": "git",
