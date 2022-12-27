@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "npx nodemon",
     "build": "npx tsc",
-    "prettier": "npx prettier --write ."
+    "prettier": "npx prettier --write .",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
@@ -21,6 +22,9 @@
   "homepage": "https://github.com/stopnoanime/8TTACS#readme",
   "devDependencies": {
     "@types/node": "^18.11.11",
+    "husky": "^8.0.2",
+    "jest": "^29.3.1",
+    "lint-staged": "^13.1.0",
     "nodemon": "^2.0.20",
     "prettier": "2.8.1",
     "ts-node": "^10.9.1",
@@ -28,5 +32,8 @@
   },
   "dependencies": {
     "ohm-js": "^16.4.0"
+  },
+  "lint-staged": {
+    "*.{js,css,md}": "prettier --write"
   }
 }
