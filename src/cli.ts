@@ -2,6 +2,7 @@ import { Compiler } from "./compiler";
 import { Sim } from "./sim";
 
 import { defaultInstructionDictionary } from "./instructions";
+import { Parser } from "./parser";
 
 const newins = defaultInstructionDictionary.slice();
 newins.push({
@@ -12,9 +13,8 @@ newins.push({
   },
 });
 
-const compiler = new Compiler(newins);
-
-const output = compiler.compile(String.raw`
+const output = new Compiler().compile(
+  new Parser().parse(String.raw`
 1545 => PUSH
 output_number => CALL
 
@@ -46,7 +46,8 @@ output_number:
     ACC => OUT
   output_number_out => PC
 
-`);
+`)
+);
 
 console.log(output);
 

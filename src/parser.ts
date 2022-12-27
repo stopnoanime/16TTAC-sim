@@ -125,7 +125,7 @@ export class Parser {
     });
   }
 
-  public parse(input: string) {
+  public parse(input: string): parserOutput {
     this.variables = [];
     this.instructions = [];
     this.labels = [];
@@ -135,6 +135,9 @@ export class Parser {
     if (match.failed()) throw new Error(match.message);
 
     this.ohmSemantics(match).eval();
+
+    const variablesOffset = this.nextTokenAddress(this.instructions);
+    this.variables.forEach((v) => (v.address += variablesOffset));
 
     return {
       variables: this.variables,
@@ -193,4 +196,10 @@ export type variableType = {
   dimension: number[];
   value: nestedNumber;
   valueErrorMessage: string;
+};
+
+export type parserOutput = {
+  variables: variableType[];
+  instructions: instructionType[];
+  labels: labelType[];
 };

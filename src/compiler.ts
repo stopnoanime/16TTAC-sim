@@ -1,22 +1,17 @@
 import { instructionDictionaryType, Instructions } from "./instructions";
-import { labelType, nestedNumber, Parser, variableType } from "./parser";
+import { labelType, nestedNumber, parserOutput, variableType } from "./parser";
 
 export class Compiler {
-  private parser: Parser;
   private instructions: Instructions;
 
   constructor(dictionary?: instructionDictionaryType) {
-    this.parser = new Parser(dictionary);
     this.instructions = new Instructions(dictionary);
   }
 
-  public compile(input: string) {
-    const pOut = this.parser.parse(input);
-
+  public compile(parserOutput: parserOutput) {
     const output: number[] = [];
-    const variablesOffset = this.parser.nextTokenAddress(pOut.instructions);
 
-    pOut.instructions.forEach((ins) => {
+    parserOutput.instructions.forEach((ins) => {
       output.push(
         (this.instructions.sourceNameToOpcode[ins.source] << 9) +
           (this.instructions.destinationNameToOpcode[ins.destination] << 2) +
@@ -29,15 +24,14 @@ export class Compiler {
           this.getReferenceAddress(
             ins.operandReference,
             ins.sourceErrorMessage,
-            variablesOffset,
-            pOut.labels,
-            pOut.variables
+            parserOutput.labels,
+            parserOutput.variables
           )
         );
       else if (ins.operandValue !== undefined) output.push(ins.operandValue);
     });
 
-    pOut.variables.forEach((vr) => {
+    parserOutput.variables.forEach((vr) => {
       output.push(
         // @ts-ignore
         ...this.getVariableSubArray(
@@ -88,21 +82,16 @@ export class Compiler {
   private getReferenceAddress(
     name: string,
     errorMessage: string,
-    variablesOffset: number,
     labels: labelType[],
     variables: variableType[]
   ) {
-    const foundLabel = labels.find((v) => v.name == name);
+    const found = [...labels, ...variables].find((v) => v.name == name);
 
-    if (foundLabel) return foundLabel.address;
-
-    const foundVar = variables.find((v) => v.name == name);
-
-    if (!foundVar)
+    if (!found)
       throw new Error(
         errorMessage + `Reference with name "${name}" not found.`
       );
 
-    return foundVar.address + variablesOffset;
+    return found.address;
   }
 }
