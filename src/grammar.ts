@@ -39,9 +39,9 @@ export class Grammar {
           .map((e) => `"${e}" &(space | "=")`)
           .join("|")}
         dest = ${this.instructions.destinations
-          .map((e) => `"${e}" &space`)
+          .map((e) => `"${e}" &(space | end)`)
           .join("|")}
-        flag = ("c" | "z") space
+        flag = ("c" | "z") &(space | end)
         
         comment = "//" (~"\n" any)*
         space += comment

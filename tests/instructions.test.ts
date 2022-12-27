@@ -24,7 +24,6 @@ const testDictionary: instructionDictionaryType = [
       return 0;
     },
   },
-
   {
     type: "destination",
     name: "destination1",

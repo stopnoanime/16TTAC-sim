@@ -36,6 +36,7 @@ export class Instructions {
 
     this.sourceOpcodeToImplementation =
       this.mapOpcodeToImplementation(sourceDictionary);
+
     this.destinationOpcodeToImplementation = this.mapOpcodeToImplementation(
       destinationDictionary
     );

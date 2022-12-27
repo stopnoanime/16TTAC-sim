@@ -56,17 +56,15 @@ export class Sim {
 
     if ((!ins.zero || this.zero) && (!ins.carry || this.carry)) {
       const sourceValue =
-        this.instructions.sourceOpcodeToImplementation[ins.source].call(this);
+        this.instructions.sourceOpcodeToImplementation[ins.source]?.call(this);
 
       if (sourceValue === null) return; //Don't execute instruction if source is not yet available
 
       this.pc++;
 
-      this.instructions.destinationOpcodeToImplementation[ins.destination].call(
-        this,
-        sourceValue,
-        ins.length
-      );
+      this.instructions.destinationOpcodeToImplementation[
+        ins.destination
+      ]?.call(this, sourceValue, ins.length);
     } else {
       this.pc += ins.length;
     }
