@@ -19,7 +19,7 @@ export class Compiler {
           (ins.zero ? 1 : 0)
       );
 
-      if (ins.operandReference)
+      if ("operandReference" in ins)
         output.push(
           this.getReferenceAddress(
             ins.operandReference,
@@ -28,7 +28,7 @@ export class Compiler {
             parserOutput.variables
           )
         );
-      else if (ins.operandValue !== undefined) output.push(ins.operandValue);
+      else if ("operandValue" in ins) output.push(ins.operandValue);
     });
 
     parserOutput.variables.forEach((vr) => {

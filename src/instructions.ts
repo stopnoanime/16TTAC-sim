@@ -16,6 +16,7 @@ export class Instructions {
   };
 
   public sourceOperandOpcode: number;
+  public sourceOperandName: string;
 
   constructor(dictionary = defaultInstructionDictionary) {
     let automaticOpcode = 0;
@@ -46,16 +47,24 @@ export class Instructions {
       dictionary
     );
 
-    this.sourceOperandOpcode = dictionary.find(
-      (e) => e.type == "source" && e.name == "OP"
-    ).opcode;
+    const foundOperand = dictionary.find(
+      (e) => e.type == "source" && e.isOperand
+    );
+
+    if (!foundOperand)
+      throw new Error("Provided dictionary has no entry for source operand");
+
+    this.sourceOperandOpcode = foundOperand.opcode;
+    this.sourceOperandName = foundOperand.name;
   }
 
   private mapNames(
     type: "source" | "destination",
     dictionary: instructionDictionaryType
   ) {
-    return dictionary.filter((e) => e.type == type).map((e) => e.name);
+    return dictionary
+      .filter((e) => e.type == type && !(e as any).isOperand)
+      .map((e) => e.name);
   }
 
   private mapNameToOpcode(
@@ -115,6 +124,7 @@ export const defaultInstructionDictionary: instructionDictionaryType = [
   {
     type: "source",
     name: "OP",
+    isOperand: true,
     implementation: function () {
       return this.memory[++this.pc];
     },
@@ -298,6 +308,7 @@ type sourceType = {
   type: "source";
   name: string;
   opcode?: number;
+  isOperand?: boolean;
   implementation: sourceImplementationType;
 };
 

@@ -1,7 +1,7 @@
 import ohm from "ohm-js";
 import { int16_min, uint16_max } from "./common";
 import { Grammar } from "./grammar";
-import { instructionDictionaryType } from "./instructions";
+import { instructionDictionaryType, Instructions } from "./instructions";
 
 export class Parser {
   private ohmGrammar: ohm.Grammar;
@@ -12,9 +12,11 @@ export class Parser {
   private labels: labelType[];
 
   private grammar: Grammar;
+  private instr: Instructions;
 
   constructor(dictionary?: instructionDictionaryType) {
     this.grammar = new Grammar(dictionary);
+    this.instr = new Instructions(dictionary);
 
     this.ohmGrammar = ohm.grammar(this.grammar.grammarDefinition);
     this.ohmSemantics = this.ohmGrammar.createSemantics();
@@ -42,23 +44,23 @@ export class Parser {
         const isOperand = src.ctorName != "src";
 
         classThis.instructions.push({
-          source: isOperand ? "OP" : src.eval(),
+          source: isOperand ? classThis.instr.sourceOperandName : src.eval(),
           destination: dest.eval(),
           carry: f0.eval() == "c" || f1.eval() == "c",
           zero: f0.eval() == "z" || f1.eval() == "z",
           address: classThis.nextTokenAddress(classThis.instructions),
           sourceErrorMessage: src.source.getLineAndColumnMessage(),
           size: isOperand ? 2 : 1,
-          ...(isOperand &&
-            src.ctorName == "varName" && {
+          ...(isOperand && {
+            ...(src.ctorName == "varName" && {
               //Source is a reference to variable
               operandReference: src.eval(),
             }),
-          ...(isOperand &&
-            src.ctorName != "varName" && {
+            ...(src.ctorName != "varName" && {
               //Source is literal value
               operandValue: src.eval(),
             }),
+          }),
         });
       },
 
