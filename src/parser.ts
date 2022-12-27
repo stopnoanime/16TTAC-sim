@@ -42,7 +42,7 @@ export class Parser {
         const isOperand = src.ctorName != "src";
 
         classThis.instructions.push({
-          source: isOperand ? "op" : src.eval(),
+          source: isOperand ? "OP" : src.eval(),
           destination: dest.eval(),
           carry: f0.eval() == "c" || f1.eval() == "c",
           zero: f0.eval() == "z" || f1.eval() == "z",

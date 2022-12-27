@@ -47,7 +47,7 @@ export class Instructions {
     );
 
     this.sourceOperandOpcode = dictionary.find(
-      (e) => e.type == "source" && e.name == "op"
+      (e) => e.type == "source" && e.name == "OP"
     ).opcode;
   }
 
@@ -93,35 +93,35 @@ export class Instructions {
 export const defaultInstructionDictionary: instructionDictionaryType = [
   {
     type: "source",
-    name: "acc",
+    name: "ACC",
     implementation: function () {
       return this.acc;
     },
   },
   {
     type: "source",
-    name: "adr",
+    name: "ADR",
     implementation: function () {
       return this.adr;
     },
   },
   {
     type: "source",
-    name: "mem",
+    name: "MEM",
     implementation: function () {
       return this.memory[this.adr];
     },
   },
   {
     type: "source",
-    name: "op",
+    name: "OP",
     implementation: function () {
       return this.memory[++this.pc];
     },
   },
   {
     type: "source",
-    name: "in",
+    name: "IN",
     implementation: function () {
       if (!this.inputAvailableCallback?.()) return null;
 
@@ -130,14 +130,14 @@ export const defaultInstructionDictionary: instructionDictionaryType = [
   },
   {
     type: "source",
-    name: "in_av",
+    name: "IN_AV",
     implementation: function () {
       return this.inputAvailableCallback?.() ? 0xffff : 0;
     },
   },
   {
     type: "source",
-    name: "pop",
+    name: "POP",
     implementation: function () {
       return this.pop();
     },
@@ -145,28 +145,28 @@ export const defaultInstructionDictionary: instructionDictionaryType = [
 
   {
     type: "destination",
-    name: "acc",
+    name: "ACC",
     implementation: function (n) {
       this.acc = n;
     },
   },
   {
     type: "destination",
-    name: "adr",
+    name: "ADR",
     implementation: function (n) {
       this.adr = n;
     },
   },
   {
     type: "destination",
-    name: "mem",
+    name: "MEM",
     implementation: function (n) {
       this.memory[this.adr] = n;
     },
   },
   {
     type: "destination",
-    name: "plus",
+    name: "PLUS",
     implementation: function (n) {
       this.acc += n + (this.carry ? 1 : 0);
       this.carry = this.acc > uint16_max;
@@ -174,7 +174,7 @@ export const defaultInstructionDictionary: instructionDictionaryType = [
   },
   {
     type: "destination",
-    name: "minus",
+    name: "MINUS",
     implementation: function (n) {
       this.acc -= n + (this.carry ? 1 : 0);
       this.carry = this.acc < 0;
@@ -182,35 +182,35 @@ export const defaultInstructionDictionary: instructionDictionaryType = [
   },
   {
     type: "destination",
-    name: "carry",
+    name: "CARRY",
     implementation: function (n) {
       this.carry = n != 0;
     },
   },
   {
     type: "destination",
-    name: "zero",
+    name: "ZERO",
     implementation: function (n) {
       this.zero = n != 0;
     },
   },
   {
     type: "destination",
-    name: "out",
+    name: "OUT",
     implementation: function (n) {
       this.outputRawCallback?.(n);
     },
   },
   {
     type: "destination",
-    name: "pc",
+    name: "PC",
     implementation: function (n) {
       this.pc = n;
     },
   },
   {
     type: "destination",
-    name: "halt",
+    name: "HALT",
     implementation: function (n, instructionLength) {
       this.pc -= instructionLength;
       this.haltCallback();
@@ -218,7 +218,7 @@ export const defaultInstructionDictionary: instructionDictionaryType = [
   },
   {
     type: "destination",
-    name: "shift_l",
+    name: "SHIFT_L",
     implementation: function (n) {
       if (n >= 32) this.acc = 0; //Js shift overflows if above 32
       else this.acc <<= n;
@@ -226,7 +226,7 @@ export const defaultInstructionDictionary: instructionDictionaryType = [
   },
   {
     type: "destination",
-    name: "shift_r",
+    name: "SHIFT_R",
     implementation: function (n) {
       if (n >= 32) this.acc = 0; //Js shift overflows if above 32
       else this.acc >>>= n;
@@ -234,7 +234,7 @@ export const defaultInstructionDictionary: instructionDictionaryType = [
   },
   {
     type: "destination",
-    name: "mul",
+    name: "MUL",
     implementation: function (n) {
       this.acc *= n;
       this.carry = this.acc > uint16_max;
@@ -242,42 +242,42 @@ export const defaultInstructionDictionary: instructionDictionaryType = [
   },
   {
     type: "destination",
-    name: "div_s",
+    name: "DIV_S",
     implementation: function (n) {
       this.acc = ((this.acc << 16) >> 16) / ((n << 16) >> 16);
     },
   },
   {
     type: "destination",
-    name: "div",
+    name: "DIV",
     implementation: function (n) {
       this.acc /= n;
     },
   },
   {
     type: "destination",
-    name: "mod_s",
+    name: "MOD_S",
     implementation: function (n) {
       this.acc = ((this.acc << 16) >> 16) % ((n << 16) >> 16);
     },
   },
   {
     type: "destination",
-    name: "mod",
+    name: "MOD",
     implementation: function (n) {
       this.acc %= n;
     },
   },
   {
     type: "destination",
-    name: "push",
+    name: "PUSH",
     implementation: function (n) {
       this.push(n);
     },
   },
   {
     type: "destination",
-    name: "call",
+    name: "CALL",
     implementation: function (n) {
       this.push(this.pc);
       this.pc = n;

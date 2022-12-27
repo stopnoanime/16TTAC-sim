@@ -6,7 +6,7 @@ import { defaultInstructionDictionary } from "./instructions";
 const newins = defaultInstructionDictionary.slice();
 newins.push({
   type: "source",
-  name: "acc2",
+  name: "ACC2",
   implementation() {
     return 2;
   },
@@ -15,41 +15,36 @@ newins.push({
 const compiler = new Compiler(newins);
 
 const output = compiler.compile(String.raw`
-word arr[5] = "abcd"
-'a' => acc
+1545 => PUSH
+output_number => CALL
 
-acc => push
-
-output_number => call
-acc => halt
+ACC => HALT
 
 output_number:
-  pop => acc
-  pop => adr
-  acc => push
-  adr => acc
-
-  0 => push
-
+  POP => ACC
+  POP => ADR
+  ACC => PUSH
+  ADR => ACC
+  0 => PUSH
+  
   output_number_loop:
-    10 => mod
-    0 => carry
-    '0' => plus
-    acc => push
+    10 => MOD
+    0 => CARRY
+    '0' => PLUS
+    ACC => PUSH
 
-    adr => acc
-    10 => div
-    acc => adr
-
-  output_number_out => pc z
-  output_number_loop => pc
-
+    ADR => ACC
+    10 => DIV
+    ACC => ADR
+    
+  output_number_out => PC z
+  output_number_loop => PC
+  
   output_number_out:
-    pop => acc
-    pop => pc z
-    acc => out
-  output_number_out => pc
-  acc => halt
+    POP => ACC
+    POP => PC z
+    ACC => OUT
+  output_number_out => PC
 
 `);
 

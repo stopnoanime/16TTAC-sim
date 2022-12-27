@@ -32,7 +32,7 @@ export class Grammar {
           | ~"\"" any          -- nonEscaped
         
         varType = "word"
-        varName = letter (alnum | "_" | "-")*
+        varName = lower (alnum | "_" | "-")*
         
         // &space is required for src/dest with same prefix as another src/dest to work
         src = ${this.instructions.sources

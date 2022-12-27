@@ -24,8 +24,6 @@ export class Compiler {
           (ins.zero ? 1 : 0)
       );
 
-      if (ins.source != "op") return;
-
       if (ins.operandReference)
         output.push(
           this.getReferenceAddress(
@@ -36,7 +34,7 @@ export class Compiler {
             pOut.variables
           )
         );
-      else output.push(ins.operandValue);
+      else if (ins.operandValue !== undefined) output.push(ins.operandValue);
     });
 
     pOut.variables.forEach((vr) => {
