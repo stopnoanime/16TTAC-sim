@@ -7,10 +7,6 @@ export class Grammar {
   constructor(dictionary?: instructionDictionaryType) {
     this.instructions = new Instructions(dictionary);
 
-
-    
-
-    
     this.grammarDefinition = String.raw`
       Grammar {
         Exp = Token*
