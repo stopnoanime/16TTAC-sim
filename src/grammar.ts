@@ -14,7 +14,7 @@ export class Grammar {
         Token = 
           varType varName ArrDim ("=" (extendedValueLiteral | ArrLiteral))?  -- variable
         | varName ":" -- label
-        | (src | valueLiteral | varName) "=>" dest flag? flag?  -- ins
+        | (src | valueLiteral | varName) "=>" dest cFlag? zFlag?  -- ins
             
         ArrDim = ( "[" number "]" )*
         ArrLiteral = ("[" ListOf<ArrLiteral, ","> "]")  -- array
@@ -47,7 +47,9 @@ export class Grammar {
         dest = ${this.instructions.destinations
           .map((e) => `"${e}" &(space | end)`)
           .join("|")}
-        flag = ("c" | "z") &(space | end)
+
+        cFlag = "c" &(space | end)
+        zFlag = "z" &(space | end)
         
         comment = "//" (~"\n" any)*
         space += comment

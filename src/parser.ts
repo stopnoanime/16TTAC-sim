@@ -40,14 +40,14 @@ export class Parser {
         });
       },
 
-      Token_ins(src, _, dest, f0, f1) {
+      Token_ins(src, _, dest, fc, fz) {
         const isOperand = src.ctorName != "src";
 
         classThis.instructions.push({
           source: isOperand ? classThis.instr.sourceOperandName : src.eval(),
           destination: dest.eval(),
-          carry: f0.eval() == "c" || f1.eval() == "c",
-          zero: f0.eval() == "z" || f1.eval() == "z",
+          carry: fc.eval() == "c",
+          zero: fz.eval() == "z",
           address: classThis.nextTokenAddress(classThis.instructions),
           sourceErrorMessage: src.source.getLineAndColumnMessage(),
           size: isOperand ? 2 : 1,
@@ -121,7 +121,11 @@ export class Parser {
         }
       },
 
-      flag(s, _) {
+      cFlag(s, _) {
+        return s.sourceString;
+      },
+
+      zFlag(s, _) {
         return s.sourceString;
       },
 
