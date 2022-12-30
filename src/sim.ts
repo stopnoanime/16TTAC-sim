@@ -6,6 +6,7 @@ export class Sim {
   public inputRawCallback: inputRawCallbackType;
   public inputAvailableCallback: inputAvailableCallbackType;
   public haltCallback: haltCallbackType;
+  public badInsCallback: badInsCallbackType;
 
   public memory: Uint16Array;
   public stack: Uint16Array;
@@ -32,6 +33,7 @@ export class Sim {
     this.inputRawCallback = options.inputRawCallback;
     this.inputAvailableCallback = options.inputAvailableCallback;
     this.haltCallback = options.haltCallback;
+    this.badInsCallback = options.badInsCallback;
 
     this.reset();
   }
@@ -55,16 +57,25 @@ export class Sim {
     const ins = this.decodeInstruction(rawIns);
 
     if ((!ins.zero || this.zero) && (!ins.carry || this.carry)) {
-      const sourceValue =
-        this.instructions.sourceOpcodeToImplementation[ins.source]?.call(this);
+      const sourceImplementation =
+        this.instructions.sourceOpcodeToImplementation[ins.source];
+      const destinationImplementation =
+        this.instructions.destinationOpcodeToImplementation[ins.destination];
+
+      //If source or destination is bad, skip this instruction
+      if (!sourceImplementation || !destinationImplementation) {
+        this.badInsCallback?.(this.pc);
+        this.pc++;
+        return;
+      }
+
+      const sourceValue = sourceImplementation?.call(this);
 
       if (sourceValue === null) return; //Don't execute instruction if source is not yet available
 
       this.pc++;
 
-      this.instructions.destinationOpcodeToImplementation[
-        ins.destination
-      ]?.call(this, sourceValue, ins.length);
+      destinationImplementation?.call(this, sourceValue, ins.length);
     } else {
       this.pc += ins.length;
     }
@@ -111,9 +122,11 @@ type SimConstructorOptions = Partial<{
   inputRawCallback: inputRawCallbackType;
   inputAvailableCallback: inputAvailableCallbackType;
   haltCallback: haltCallbackType;
+  badInsCallback: badInsCallbackType;
 }>;
 
 export type outputRawCallbackType = (n: number) => void;
 export type inputRawCallbackType = () => number;
 export type inputAvailableCallbackType = () => boolean;
 export type haltCallbackType = () => void;
+export type badInsCallbackType = (adr: number) => void;

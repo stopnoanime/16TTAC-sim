@@ -21,16 +21,22 @@ export class Grammar {
         | extendedValueLiteral
         
         number = "-"? digit+
-        charLiteral = "'"any"'"
         valueLiteral = hexLiteral | number | charLiteral
         extendedValueLiteral = valueLiteral | stringLiteral 
         hexLiteral = "0x" hexDigit+
+        charLiteral = "'" charLiteralCharacter "'"
         stringLiteral = "\"" doubleStringCharacter* "\""
     
+        charLiteralCharacter =
+          escapedCharacter
+          | ~"\'" any
+
         doubleStringCharacter =
-          "\\" any           -- escaped
-          | ~"\"" any          -- nonEscaped
+          escapedCharacter
+          | ~"\"" any
         
+        escapedCharacter = "\\" any
+
         varType = "word"
         varName = lower (alnum | "_" | "-")*
         

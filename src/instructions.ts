@@ -220,7 +220,7 @@ export const defaultInstructionDictionary: instructionDictionaryType = [
     name: "HALT",
     implementation: function (n, instructionLength) {
       this.pc -= instructionLength;
-      this.haltCallback();
+      this.haltCallback?.();
     },
   },
   {

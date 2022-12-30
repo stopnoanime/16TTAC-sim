@@ -98,11 +98,27 @@ export class Parser {
       },
 
       charLiteral(_, c, __) {
-        return c.sourceString.charCodeAt(0);
+        return c.eval().charCodeAt(0);
       },
 
       stringLiteral(_, s, __) {
-        return [...[...s.sourceString].map((s) => s.charCodeAt(0)), 0];
+        return [...s.eval().map((s: string) => s.charCodeAt(0)), 0];
+      },
+
+      escapedCharacter(_, s) {
+        switch (s.sourceString) {
+          case "n":
+            return "\n";
+          case "b":
+            return "\b";
+          case "t":
+            return "\t";
+          case "0":
+            return "\0";
+
+          default:
+            return s.sourceString;
+        }
       },
 
       flag(s, _) {
@@ -119,6 +135,10 @@ export class Parser {
 
       _iter(...children) {
         return children.map((c) => c.eval());
+      },
+
+      _terminal() {
+        return this.sourceString;
       },
     });
   }

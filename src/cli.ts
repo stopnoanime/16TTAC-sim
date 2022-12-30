@@ -1,89 +1,96 @@
 import { Compiler } from "./compiler";
 import { Sim } from "./sim";
-
-import { defaultInstructionDictionary } from "./instructions";
 import { Parser } from "./parser";
+import { Command } from "commander";
+import fs from "fs/promises";
+import path from "path";
 
-const newins = defaultInstructionDictionary.slice();
-newins.push({
-  type: "source",
-  name: "ACC2",
-  implementation() {
-    return 2;
+const parser = new Parser();
+const compiler = new Compiler();
+const program = new Command();
+
+const inputBuffer: number[] = [];
+let simRunning = false;
+const sim = new Sim({
+  outputRawCallback: (n) => {
+    if (n == 0x7f)
+      //Backspace
+      process.stdout.write("\b \b");
+    else if (n == 0x0d || n == 0x0a)
+      //CR
+      process.stdout.write("\n");
+    else process.stdout.write(String.fromCharCode(n));
   },
+  inputAvailableCallback: () => inputBuffer.length > 0,
+  inputRawCallback: () => inputBuffer.shift(),
+  haltCallback: () => {
+    console.log("\n\nHalting");
+    simRunning = false;
+  },
+  badInsCallback: (adr) => console.warn("Bad instruction at address: ", adr),
 });
 
-const output = new Compiler().compile(
-  new Parser().parse(String.raw`
-1545 => PUSH
-output_number => CALL
+function stepSim() {
+  for (let i = 0; i < 1_000_000; i++) {
+    sim.singleStep();
+    if (!simRunning) return;
+  }
 
-ACC => HALT
-
-output_number:
-  POP => ACC
-  POP => ADR
-  ACC => PUSH
-  ADR => ACC
-  0 => PUSH
-  
-  output_number_loop:
-    10 => MOD
-    0 => CARRY
-    '0' => PLUS
-    ACC => PUSH
-
-    ADR => ACC
-    10 => DIV
-    ACC => ADR
-    
-  output_number_out => PC z
-  output_number_loop => PC
-  
-  output_number_out:
-    POP => ACC
-    POP => PC z
-    ACC => OUT
-  output_number_out => PC
-
-`)
-);
-
-console.log(output);
-
-function outRaw(n: number) {
-  console.log(String.fromCharCode(n));
+  setTimeout(stepSim); //Set timeout allows for input handling code to run
 }
 
-const input = [97];
+function runSim() {
+  process.stdin.setRawMode(true);
+  process.stdin.on("data", (data) => {
+    for (const d of data) {
+      if (d == 3) process.exit(); // ctrl-c
+      else inputBuffer.push(d);
+    }
+  });
 
-function inAvil() {
-  return input.length > 0;
+  simRunning = true;
+  stepSim();
+  process.exit();
 }
 
-function inp() {
-  return input.pop();
-}
+program.name("16TTAC-sim").description("Simulator and compiler for the 16TTAC");
 
-let running = true;
+program.argument("<source>", "Source file to run").action(async (source) => {
+  const sourceCode = await fs.readFile(source, { encoding: "utf8" });
+  sim.initializeMemory(compiler.compile(parser.parse(sourceCode)));
 
-function halt() {
-  console.log("halting");
-  running = false;
-}
+  runSim();
+});
 
-const sim = new Sim(
-  {
-    outputRawCallback: outRaw,
-    inputAvailableCallback: inAvil,
-    inputRawCallback: inp,
-    haltCallback: halt,
-  },
-  newins
-);
+program
+  .command("compile")
+  .argument("<source>", "Source file to compile")
+  .argument("[binary]", "File to write binary output to")
+  .action(async (source, output) => {
+    const sourceCode = await fs.readFile(source, { encoding: "utf8" });
+    const outputName =
+      output ||
+      path.join(
+        path.dirname(source),
+        path.basename(source, path.extname(source)) + ".bin"
+      );
+    fs.writeFile(outputName, compiler.compile(parser.parse(sourceCode)));
+  });
 
-sim.initializeMemory(output);
+program
+  .command("run")
+  .argument("<binary>", "Binary file to run")
+  .action(async (binary) => {
+    const loadedBuffer = await fs.readFile(binary);
+    sim.initializeMemory(
+      new Uint16Array(
+        loadedBuffer.buffer,
+        loadedBuffer.byteOffset,
+        loadedBuffer.length / 2
+      )
+    );
 
-while (running) {
-  sim.singleStep();
-}
+    runSim();
+  });
+
+program.parse();
