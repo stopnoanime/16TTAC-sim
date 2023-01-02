@@ -8,7 +8,7 @@
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
-      "preLaunchTask": "npm: build",
+      "preLaunchTask": "tsc: build - tsconfig.debug.json",
       "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}/src/cli.ts",
       "outFiles": ["${workspaceFolder}/**/*.js"]

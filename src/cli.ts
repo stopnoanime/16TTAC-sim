@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 import { Compiler } from "./compiler";
 import { Sim } from "./sim";
 import { Parser } from "./parser";

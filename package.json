@@ -1,15 +1,15 @@
 {
-  "name": "16ttac",
+  "name": "16ttac-sim",
   "version": "1.0.0",
-  "description": "",
-  "main": "cli.js",
+  "description": "16 Bit Transport Triggered Architecture CPU Simulator",
   "scripts": {
     "dev": "npx nodemon",
     "build": "npx tsc",
     "prettier": "npx prettier --write .",
     "prepare": "husky install",
     "test": "jest",
-    "coverage": "jest --coverage"
+    "coverage": "jest --coverage",
+    "prepublishOnly": "npm run build && npm test"
   },
   "repository": {
     "type": "git",
@@ -40,5 +40,11 @@
   },
   "lint-staged": {
     "*.{js,ts,css,md}": "prettier --write"
+  },
+  "files": [
+    "lib/**/*"
+  ],
+  "bin": {
+    "16ttac-sim": "lib/cli.js"
   }
 }
