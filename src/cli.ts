@@ -1,8 +1,8 @@
 #! /usr/bin/env node
 
-import { Compiler } from "./compiler";
-import { Sim } from "./sim";
-import { Parser } from "./parser";
+import { Compiler } from "./compiler.js";
+import { Sim } from "./sim.js";
+import { Parser } from "./parser.js";
 import { Command } from "commander";
 import fs from "fs/promises";
 import path from "path";

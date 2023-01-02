@@ -1,7 +1,7 @@
 import ohm from "ohm-js";
-import { int16_min, uint16_max } from "./common";
-import { Grammar } from "./grammar";
-import { instructionDictionaryType, Instructions } from "./instructions";
+import { int16_min, uint16_max } from "./common.js";
+import { Grammar } from "./grammar.js";
+import { instructionDictionaryType, Instructions } from "./instructions.js";
 
 export class Parser {
   private ohmGrammar: ohm.Grammar;

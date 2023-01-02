@@ -1,4 +1,4 @@
-import { instructionDictionaryType, Instructions } from "./instructions";
+import { instructionDictionaryType, Instructions } from "./instructions.js";
 
 export class Grammar {
   private instructions: Instructions;

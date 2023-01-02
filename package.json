@@ -1,7 +1,10 @@
 {
   "name": "16ttac-sim",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "16 Bit Transport Triggered Architecture CPU Simulator",
+  "main": "lib/index.js",
+  "type": "module",
+  "types": "lib/index.d.ts",
   "scripts": {
     "dev": "npx nodemon",
     "build": "npx tsc",
@@ -13,15 +16,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stopnoanime/8TTACS.git"
+    "url": "git+https://github.com/stopnoanime/16TTAC-sim.git"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/stopnoanime/8TTACS/issues"
+    "url": "https://github.com/stopnoanime/16TTAC-sim/issues"
   },
-  "homepage": "https://github.com/stopnoanime/8TTACS#readme",
+  "homepage": "https://github.com/stopnoanime/16TTAC-sim#readme",
   "devDependencies": {
     "@types/jest": "^29.2.4",
     "@types/node": "^18.11.11",

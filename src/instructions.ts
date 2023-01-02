@@ -1,5 +1,5 @@
-import { uint16_max } from "./common";
-import { Sim } from "./sim";
+import { uint16_max } from "./common.js";
+import { Sim } from "./sim.js";
 
 export class Instructions {
   public sources: string[];

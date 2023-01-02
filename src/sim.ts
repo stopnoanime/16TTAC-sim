@@ -1,5 +1,5 @@
-import { stack_size, uint16_max } from "./common";
-import { instructionDictionaryType, Instructions } from "./instructions";
+import { stack_size, uint16_max } from "./common.js";
+import { instructionDictionaryType, Instructions } from "./instructions.js";
 
 export class Sim {
   public outputRawCallback: outputRawCallbackType;

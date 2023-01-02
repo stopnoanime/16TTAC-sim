@@ -1,5 +1,10 @@
-import { instructionDictionaryType, Instructions } from "./instructions";
-import { labelType, nestedNumber, parserOutput, variableType } from "./parser";
+import { instructionDictionaryType, Instructions } from "./instructions.js";
+import {
+  labelType,
+  nestedNumber,
+  parserOutput,
+  variableType,
+} from "./parser.js";
 
 export class Compiler {
   private instructions: Instructions;
