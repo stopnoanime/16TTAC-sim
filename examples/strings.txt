@@ -1,0 +1,65 @@
+word prompt[19] = "Input any string: "
+
+prompt => PUSH
+string_out => CALL
+
+prompt => PUSH
+string_in => CALL
+prompt => PUSH
+string_out => CALL
+
+NULL => HALT
+
+//Function that outputs a provided string
+//String address should be on the top of stack before calling it
+string_out:
+    POP => ADR
+    POP => ACC
+    ADR => PUSH
+
+    0 => CARRY
+
+    string_out_loop:
+        ACC => ADR
+        MEM => ACC
+
+        POP => PC z
+
+        ACC => OUT
+
+        ADR => ACC
+        1 => PLUS
+    string_out_loop => PC
+
+//Function that reads input from console until space/enter and stores it in a provided string
+//String address should be on the top of stack before calling it
+string_in:
+    POP => ACC
+    POP => ADR
+    ACC => PUSH
+
+    string_in_loop:
+        IN => ACC
+        ACC => PUSH
+
+        0 => CARRY
+        ' ' => MINUS
+        NULL => MEM z
+        POP => NULL z
+        POP => PC z
+
+        POP => ACC
+        ACC => PUSH
+        0 => CARRY
+        '\r' => MINUS
+        NULL => MEM z
+        POP => NULL z
+        POP => PC z
+
+        POP => MEM
+
+        ADR => ACC
+        0 => CARRY
+        1 => PLUS
+        ACC => ADR
+    string_in_loop => PC

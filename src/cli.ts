@@ -7,6 +7,10 @@ import { Command } from "commander";
 import fs from "fs/promises";
 import path from "path";
 
+process.on("uncaughtException", (err) => {
+  console.log(err.message);
+});
+
 const parser = new Parser();
 const compiler = new Compiler();
 const program = new Command();
@@ -35,14 +39,14 @@ const sim = new Sim({
 function stepSim() {
   for (let i = 0; i < 1_000_000; i++) {
     sim.singleStep();
-    if (!simRunning) return;
+    if (!simRunning) process.exit();
   }
 
   setTimeout(stepSim); //Set timeout allows for input handling code to run
 }
 
 function runSim() {
-  process.stdin.setRawMode(true);
+  process.stdin.setRawMode?.(true);
   process.stdin.on("data", (data) => {
     for (const d of data) {
       if (d == 3) process.exit(); // ctrl-c
@@ -52,7 +56,6 @@ function runSim() {
 
   simRunning = true;
   stepSim();
-  process.exit();
 }
 
 program.name("16TTAC-sim").description("Simulator and compiler for the 16TTAC");

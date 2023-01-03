@@ -106,19 +106,7 @@ export class Parser {
       },
 
       escapedCharacter(_, s) {
-        switch (s.sourceString) {
-          case "n":
-            return "\n";
-          case "b":
-            return "\b";
-          case "t":
-            return "\t";
-          case "0":
-            return "\0";
-
-          default:
-            return s.sourceString;
-        }
+        return eval(`'\\${s.sourceString}'`);
       },
 
       cFlag(s, _) {

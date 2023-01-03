@@ -149,6 +149,13 @@ export const defaultInstructionDictionary: instructionDictionaryType = [
       return this.pop();
     },
   },
+  {
+    type: "source",
+    name: "NULL",
+    implementation: function () {
+      return 0;
+    },
+  },
 
   {
     type: "destination",
@@ -289,6 +296,11 @@ export const defaultInstructionDictionary: instructionDictionaryType = [
       this.push(this.pc);
       this.pc = n;
     },
+  },
+  {
+    type: "destination",
+    name: "NULL",
+    implementation: function (n) {},
   },
 ];
 
