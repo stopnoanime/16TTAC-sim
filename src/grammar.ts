@@ -16,7 +16,7 @@ export class Grammar {
         | varName ":" -- label
         | (src | valueLiteral | varName) "=>" dest cFlag? zFlag?  -- ins
             
-        ArrDim = ( "[" number "]" )*
+        ArrDim = ( "[" valueLiteral "]" )*
         ArrLiteral = ("[" ListOf<ArrLiteral, ","> "]")  -- array
         | extendedValueLiteral
         

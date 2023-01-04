@@ -1,3 +1,4 @@
+import { uint16_max } from "./common.js";
 import { instructionDictionaryType, Instructions } from "./instructions.js";
 import {
   labelType,
@@ -46,6 +47,13 @@ export class Compiler {
         ).flat(Infinity)
       );
     });
+
+    if (output.length > uint16_max + 1)
+      throw new Error(
+        `Program size ${output.length} is larger than the maximum of ${
+          uint16_max + 1
+        }`
+      );
 
     return new Uint16Array(output);
   }

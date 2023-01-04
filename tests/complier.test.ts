@@ -114,3 +114,15 @@ it("Throws error when reference with name is not found", () => {
     compiler.compile(parser.parse(String.raw`varName => DEST`))
   ).toThrow();
 });
+
+it("Throws error when compiled output is too large", () => {
+  expect(() =>
+    compiler.compile(parser.parse(String.raw`word string[0xFFFF] SRC => DEST`))
+  ).not.toThrow();
+
+  expect(() =>
+    compiler.compile(
+      parser.parse(String.raw`word string[0xFFFF] SRC => DEST SRC => DEST`)
+    )
+  ).toThrow();
+});
