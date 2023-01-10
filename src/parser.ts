@@ -37,6 +37,8 @@ export class Parser {
           dimension: isArr ? arr : [1], //Treat normal variable as one dimensional array with length 1
           value: value.eval()[0] || 0,
           valueErrorMessage: value.source.getLineAndColumnMessage(),
+          sourceStart: this.source.startIdx,
+          sourceEnd: this.source.endIdx,
         });
       },
 
@@ -61,6 +63,8 @@ export class Parser {
               operandValue: src.eval(),
             }),
           }),
+          sourceStart: this.source.startIdx,
+          sourceEnd: this.source.endIdx,
         });
       },
 
@@ -70,6 +74,8 @@ export class Parser {
         classThis.labels.push({
           name: name.eval(),
           address: classThis.nextTokenAddress(classThis.instructions),
+          sourceStart: this.source.startIdx,
+          sourceEnd: this.source.endIdx,
         });
       },
 
@@ -180,27 +186,30 @@ export class Parser {
   }
 }
 
-export type instructionType = {
+export type parserTokenType = {
+  address: number;
+  sourceStart: number;
+  sourceEnd: number;
+};
+
+export type nestedNumber = number | nestedNumber[];
+
+export type instructionType = parserTokenType & {
   source: string;
   destination: string;
   carry: boolean;
   zero: boolean;
-  address: number;
   size: number;
   sourceErrorMessage: string;
   operandReference?: string;
   operandValue?: number;
 };
 
-export type labelType = {
-  address: number;
+export type labelType = parserTokenType & {
   name: string;
 };
 
-export type nestedNumber = number | nestedNumber[];
-
-export type variableType = {
-  address: number;
+export type variableType = parserTokenType & {
   name: string;
   size: number;
   dimension: number[];
