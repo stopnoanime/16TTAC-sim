@@ -148,7 +148,11 @@ export class Parser {
 
     const match = this.ohmGrammar.match(input);
 
-    if (match.failed()) throw new Error(match.message);
+    if (match.failed())
+      throw new ParserError(
+        match.message,
+        (match as any).getRightmostFailurePosition()
+      );
 
     this.ohmSemantics(match).eval();
 
@@ -168,9 +172,10 @@ export class Parser {
 
   private checkIfNumberOutOfRange(n: number, node: ohm.Node) {
     if (n > uint16_max || n < int16_min)
-      throw new Error(
+      throw new ParserError(
         node.source.getLineAndColumnMessage() +
-          `Literal value "${n}" is outside of valid range.`
+          `Literal value "${n}" is outside of valid range.`,
+        node.source.startIdx
       );
   }
 
@@ -179,10 +184,21 @@ export class Parser {
       this.variables.find((v) => v.name == name) ||
       this.labels.find((l) => l.name == name)
     )
-      throw new Error(
+      throw new ParserError(
         node.source.getLineAndColumnMessage() +
-          `Reference with name "${name}" is already defined.`
+          `Reference with name "${name}" is already defined.`,
+        node.source.startIdx
       );
+  }
+}
+
+export class ParserError extends Error {
+  sourcePosition: number;
+
+  constructor(message: string, sourcePosition: number) {
+    super(message);
+    this.name = this.constructor.name;
+    this.sourcePosition = sourcePosition;
   }
 }
 
