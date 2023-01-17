@@ -1,7 +1,7 @@
 # 16TTAC-sim
 
 A compiler and simulator written in Ts for a imaginary 16bit
-[Transport Triggered Architecture](https://en.m.wikipedia.org/wiki/Transport_triggered_architecture#cite_note-8) CPU.
+[Transport Triggered Architecture](https://en.wikipedia.org/wiki/Transport_triggered_architecture) CPU.
 
 # The CPU
 
@@ -24,7 +24,7 @@ A compiler and simulator written in Ts for a imaginary 16bit
 
 ### Sources and destinations:
 
-All sources and destinations are completely customizable, but you can look [here](docs/src-dest.md) to see the descriptions of all instructions that are available by default.
+All sources and destinations are completely customizable, but you can look [here](docs/src-dest.md) to see the descriptions of all of them that are available by default.
 
 # The assembly language
 
