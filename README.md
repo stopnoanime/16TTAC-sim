@@ -1,26 +1,26 @@
 # 16TTAC-sim
 
-A compiler and simulator written in Ts for a imaginary 16bit
+A compiler and simulator written in TypeScript for an imaginary 16bit
 [Transport Triggered Architecture](https://en.wikipedia.org/wiki/Transport_triggered_architecture) CPU.
 
 # The CPU
 
+- Uses the TTA architecture
 - Up to 128 sources and destinations each
 - Accumulator and Address registers
-- 16 bit fixed width instruction, with optional 16 bit operand
+- 16-bit fixed width instruction, with optional 16-bit operand
 - 64 kiloword, or 128KB RAM size
-- 256 word stack
-- Carry and Zero flags
+- 256-word stack
 - Conditional execution using Carry and Zero flags
 - Halting support
-- Built in IO support
+- Built-in IO support
 
 ### Instruction structure:
 
 - bits 15-9 - source
 - bits 8-2 - destination
-- bit 1 - if set, instruction is only executed if carry flag is set
-- bit 0 - if set, instruction is only executed if zero flag is set
+- bit 1 - if set, instruction is only executed if the carry flag is set
+- bit 0 - if set, instruction is only executed if the zero flag is set
 
 ### Sources and destinations:
 
@@ -42,17 +42,18 @@ word MUL_ARR[10][2] = [[0,1], [2,3], "a"]
 
 //Some example instructions:
 SOURCE => DESTINATION
-SOURCE => DESTINATION c //Executes only if carry flag is set
-SOURCE => DESTINATION z //Executes only if zero flag is set
-SOURCE => DESTINATION c z //Executes only if carry and zero flag is set
+SOURCE => DESTINATION c //Executes only if the carry flag is set
+SOURCE => DESTINATION z //Executes only if the zero flag is set
+SOURCE => DESTINATION c z //Executes only if the carry and the zero flag are set
 
-//Source can also be a constant value, provided by operand
+//Source can also be a constant value, provided by the operand
 123 => DESTINATION
 0xFFFF => DESTINATION
 'a' => DESTINATION
 
-//They also can be a reference to a variable
+//Source can also be a reference to a variable
 string => ADR
+var2 => ADR
 
 //Labels:
 label:
@@ -63,10 +64,10 @@ string => PUSH
 
 # The Toolchain
 
-The toolchain is written in TS, it is made to work both in web and node.
+The toolchain is written in TypeScript, it is made to work both in web and node.
 It also works as a standalone tool that you can use with npx.
 
-# Using 16TTAC-sim as a npx tool
+# Using 16TTAC-sim as an npx tool
 
 ```
 $ npx 16ttac-sim -h
