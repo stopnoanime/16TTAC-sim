@@ -6,11 +6,14 @@ A compiler and simulator written in Ts for a imaginary 16bit
 # The CPU
 
 - Up to 128 sources and destinations each
+- Accumulator and Address registers
 - 16 bit fixed width instruction, with optional 16 bit operand
 - 64 kiloword, or 128KB RAM size
 - 256 word stack
 - Carry and Zero flags
 - Conditional execution using Carry and Zero flags
+- Halting support
+- Built in IO support
 
 ### Instruction structure:
 
@@ -21,7 +24,7 @@ A compiler and simulator written in Ts for a imaginary 16bit
 
 ### Sources and destinations:
 
-All sources and destinations are completely customizable, but you can look at the [default instructions dictionary](src/instructionDictionary.ts) to see all instructions that are available by default.
+All sources and destinations are completely customizable, but you can look [here](docs/src-dest.md) to see the descriptions of all instructions that are available by default.
 
 # The assembly language
 
@@ -103,4 +106,4 @@ or you can create your own dictionary.
 
 ### Important:
 
-A dictionary needs one source with `isOperand` set for the toolchain to function.
+A dictionary needs one source with `isOperand` set for the toolchain to work correctly.
