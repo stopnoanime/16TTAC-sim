@@ -4,6 +4,10 @@ export class Grammar {
   private instructions: Instructions;
   public grammarDefinition: string;
 
+  /**
+   * Constructs the Ohm Grammar definition
+   * @param dictionary Optional dictionary to use instead of the default one
+   */
   constructor(dictionary?: instructionDictionaryType) {
     this.instructions = new Instructions(dictionary);
 

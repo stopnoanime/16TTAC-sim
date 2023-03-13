@@ -10,13 +10,23 @@ import {
 export class Compiler {
   private instructions: Instructions;
 
+  /**
+   * Constructs the compiler
+   * @param dictionary Optional dictionary to use instead of the default one
+   */
   constructor(dictionary?: instructionDictionaryType) {
     this.instructions = new Instructions(dictionary);
   }
 
+  /**
+   * Compiles given code
+   * @param input The code to compile
+   * @returns Compiled binary code
+   */
   public compile(parserOutput: parserOutput) {
     const output: number[] = [];
 
+    //First output instructions
     parserOutput.instructions.forEach((ins) => {
       output.push(
         (this.instructions.sourceNameToOpcode[ins.source] << 9) +
@@ -37,6 +47,7 @@ export class Compiler {
       else if ("operandValue" in ins) output.push(ins.operandValue);
     });
 
+    //Then output variables
     parserOutput.variables.forEach((vr) => {
       output.push(
         // @ts-ignore
@@ -58,6 +69,7 @@ export class Compiler {
     return new Uint16Array(output);
   }
 
+  /** Used to extract data from a variable literal in a recursive way */
   private getVariableSubArray(
     dim: number[],
     value: nestedNumber,
@@ -65,11 +77,14 @@ export class Compiler {
   ): nestedNumber[] {
     if (Array.isArray(value) && value.length > dim[0])
       throw new Error(errMsg + "Value literal is too long.");
+
     return Array.from(Array(dim[0])).map((_, i) => {
       if (dim.length == 1) {
         const val = this.getVariableValueAtPosition(i, value);
+
         if (Array.isArray(val))
           throw new Error(errMsg + "Value literal is too deep.");
+
         return val;
       } else {
         return this.getVariableSubArray(
@@ -92,6 +107,10 @@ export class Compiler {
     } else return value;
   }
 
+  /**
+   * Returns address of reference (variable or label) with given name
+   * Throws error if it does not exist.
+   */
   private getReferenceAddress(
     name: string,
     errorMessage: string,

@@ -9,8 +9,6 @@ export class Sim {
   public badInsCallback: badInsCallbackType;
 
   public memory: Uint16Array;
-  public stack: Uint16Array;
-  public stackPointer: number;
 
   public acc: number;
   public adr: number;
@@ -18,8 +16,16 @@ export class Sim {
   public carry: boolean;
   public zero: boolean;
 
+  public stack: Uint16Array;
+  public stackPointer: number;
+
   private instructions: Instructions;
 
+  /**
+   * Constructs the sim
+   * @param options Objects with sim callbacks, used for features like I/O or halting
+   * @param dictionary Optional dictionary to use instead of the default one
+   */
   constructor(
     options: SimConstructorOptions,
     dictionary?: instructionDictionaryType
@@ -38,11 +44,13 @@ export class Sim {
     this.reset();
   }
 
+  /** Initializes memory from given array */
   public initializeMemory(array: Uint16Array) {
     this.memory.fill(0);
     this.memory.set(array);
   }
 
+  /** Resets the CPU */
   public reset() {
     this.acc = 0;
     this.adr = 0;
@@ -52,10 +60,12 @@ export class Sim {
     this.zero = true;
   }
 
+  /** Single steps the CPU */
   public singleStep() {
     const rawIns = this.memory.at(this.pc);
     const ins = this.decodeInstruction(rawIns);
 
+    // If conditions to execute instruction are met
     if ((!ins.zero || this.zero) && (!ins.carry || this.carry)) {
       const sourceImplementation =
         this.instructions.sourceOpcodeToImplementation[ins.source];
@@ -65,7 +75,7 @@ export class Sim {
       //If source or destination is bad, skip this instruction
       if (!sourceImplementation || !destinationImplementation) {
         this.badInsCallback?.(this.pc);
-        this.pc++;
+        this.pc += ins.length;
         return;
       }
 
@@ -83,12 +93,14 @@ export class Sim {
     this.limitRegistersTo16Bits();
   }
 
+  /** Pops a value from stack and returns it */
   public pop() {
     this.stackPointer =
       this.stackPointer == 0 ? stack_size - 1 : this.stackPointer - 1;
     return this.stack[this.stackPointer];
   }
 
+  /** Pushes a value onto the stack */
   public push(n: number) {
     this.stack[this.stackPointer] = n;
     this.stackPointer = ++this.stackPointer % stack_size;
@@ -105,6 +117,7 @@ export class Sim {
     };
   }
 
+  /** Limits register value to uint16 range and also sets zero flag */
   private limitRegistersTo16Bits() {
     this.acc = this.uint16(this.acc);
     this.zero = this.acc == 0;

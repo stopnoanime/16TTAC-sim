@@ -2,7 +2,9 @@ import { defaultInstructionDictionary } from "./instructionDictionary.js";
 import { Sim } from "./sim.js";
 
 export class Instructions {
+  /** Array of all source's names */
   public sources: string[];
+  /** Array of all destination's names */
   public destinations: string[];
 
   public sourceNameToOpcode: { [key: string]: number };
@@ -15,9 +17,15 @@ export class Instructions {
     [key: number]: destinationImplementationType;
   };
 
+  /** Opcode of the source with isOperand set */
   public sourceOperandOpcode: number;
+  /** Name of the source with isOperand set */
   public sourceOperandName: string;
 
+  /**
+   * Constructs the instructions helper class
+   * @param dictionary Optional dictionary to use instead of the default one
+   */
   constructor(dictionary = defaultInstructionDictionary) {
     const sourceDictionary = this.getSubDictionary("source", dictionary);
     const destinationDictionary = this.getSubDictionary(
@@ -52,6 +60,7 @@ export class Instructions {
     this.sourceOperandName = foundOperand.name;
   }
 
+  /** Returns only specific type of instructions from dictionary */
   private getSubDictionary(
     type: "source" | "destination",
     dictionary: instructionDictionaryType
@@ -59,6 +68,7 @@ export class Instructions {
     return dictionary.filter((e) => e.type == type).map((v) => ({ ...v }));
   }
 
+  /** Automatically sets opcodes for instructions that don't have it */
   private automaticOpcode(dictionary: instructionDictionaryType) {
     let automaticOpcode = 0;
     dictionary.forEach((e) => {

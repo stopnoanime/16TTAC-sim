@@ -14,6 +14,10 @@ export class Parser {
   private grammar: Grammar;
   private instr: Instructions;
 
+  /**
+   * Constructs the parser
+   * @param dictionary Optional dictionary to use instead of the default one
+   */
   constructor(dictionary?: instructionDictionaryType) {
     this.grammar = new Grammar(dictionary);
     this.instr = new Instructions(dictionary);
@@ -23,6 +27,7 @@ export class Parser {
 
     const classThis = this;
 
+    // Add operations to the grammar
     this.ohmSemantics.addOperation("eval", {
       Token_variable(_, name, arrDim, __, value) {
         classThis.checkIfReferenceAlreadyExists(name.eval(), name);
@@ -141,6 +146,11 @@ export class Parser {
     });
   }
 
+  /**
+   * Parses given code
+   * @param input The code to parse
+   * @returns variables, instructions and labels from source code
+   */
   public parse(input: string): parserOutput {
     this.variables = [];
     this.instructions = [];
@@ -170,6 +180,7 @@ export class Parser {
     return tokens.length == 0 ? 0 : tokens.at(-1).address + tokens.at(-1).size;
   }
 
+  /** Throws error if number is outside uint16 range */
   private checkIfNumberOutOfRange(n: number, node: ohm.Node) {
     if (n > uint16_max || n < int16_min)
       throw new ParserError(
@@ -179,6 +190,7 @@ export class Parser {
       );
   }
 
+  /** Throws error if reference with name is already declared (there is another var or label with the same name) */
   private checkIfReferenceAlreadyExists(name: string, node: ohm.Node) {
     if (
       this.variables.find((v) => v.name == name) ||
