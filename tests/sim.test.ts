@@ -1,6 +1,7 @@
 import { Parser } from "../src/parser";
 import { Compiler } from "../src/compiler";
 import { Sim } from "../src/sim";
+import { exampleProgram } from "../src/exampleProgram";
 
 const parser = new Parser();
 const compiler = new Compiler();
@@ -79,51 +80,15 @@ it("Simulates complicated program", () => {
       halted = true;
     },
   });
-  sim.initializeMemory(
-    compiler.compile(
-      parser.parse(String.raw`
-      word var = 15459
-      var => ADR
-      MEM => PUSH
-      output_number => CALL
-      
-      ACC => HALT
-      
-      output_number:
-        POP => ACC
-        POP => ADR
-        ACC => PUSH
-        ADR => ACC
-        0 => PUSH
-        
-        output_number_loop:
-          10 => MOD
-          0 => CARRY
-          '0' => PLUS
-          ACC => PUSH
-      
-          ADR => ACC
-          10 => DIV
-          ACC => ADR
-          
-        output_number_out => PC z
-        output_number_loop => PC
-        
-        output_number_out:
-          POP => ACC
-          POP => PC z
-          ACC => OUT
-        output_number_out => PC`)
-    )
-  );
+  sim.initializeMemory(compiler.compile(parser.parse(exampleProgram)));
 
   while (!halted) sim.singleStep();
 
   expect(outBuff).toEqual([
+    "6".charCodeAt(0),
     "1".charCodeAt(0),
-    "5".charCodeAt(0),
-    "4".charCodeAt(0),
-    "5".charCodeAt(0),
+    "2".charCodeAt(0),
     "9".charCodeAt(0),
+    "3".charCodeAt(0),
   ]);
 });
