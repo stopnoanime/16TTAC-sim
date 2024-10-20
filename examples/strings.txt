@@ -17,8 +17,6 @@ string_out:
     POP => ACC
     ADR => PUSH
 
-    0 => CARRY
-
     string_out_loop:
         ACC => ADR
         MEM => ACC
@@ -28,7 +26,7 @@ string_out:
         ACC => OUT
 
         ADR => ACC
-        1 => PLUS
+        1   => ADD
     string_out_loop => PC
 
 //Function that reads input from console until space/enter and stores it in a provided string
@@ -42,16 +40,14 @@ string_in:
         IN => ACC
         ACC => PUSH
 
-        0 => CARRY
-        ' ' => MINUS
+        ' ' => SUB
         NULL => MEM z
         POP => NULL z
         POP => PC z
 
         POP => ACC
         ACC => PUSH
-        0 => CARRY
-        '\r' => MINUS
+        '\r' => SUB
         NULL => MEM z
         POP => NULL z
         POP => PC z
@@ -59,7 +55,6 @@ string_in:
         POP => MEM
 
         ADR => ACC
-        0 => CARRY
-        1 => PLUS
+        1 => ADD
         ACC => ADR
     string_in_loop => PC

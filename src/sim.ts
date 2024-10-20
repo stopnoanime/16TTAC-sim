@@ -2,19 +2,17 @@ import { stack_size, uint16_max } from "./common.js";
 import { instructionDictionaryType, Instructions } from "./instructions.js";
 
 export class Sim {
-  public outputRawCallback: outputRawCallbackType;
-  public inputRawCallback: inputRawCallbackType;
-  public inputAvailableCallback: inputAvailableCallbackType;
-  public haltCallback: haltCallbackType;
-  public badInsCallback: badInsCallbackType;
+  public callbacks: SimCallbacks;
 
   public memory: Uint16Array;
 
   public acc: number;
   public adr: number;
+  public led: number;
   public pc: number;
   public carry: boolean;
   public zero: boolean;
+  public setZero: boolean;
 
   public stack: Uint16Array;
   public stackPointer: number;
@@ -23,23 +21,16 @@ export class Sim {
 
   /**
    * Constructs the sim
-   * @param options Objects with sim callbacks, used for features like I/O or halting
+   * @param callbacks Objects with sim callbacks, used for features like I/O or halting
    * @param dictionary Optional dictionary to use instead of the default one
    */
-  constructor(
-    options: SimConstructorOptions,
-    dictionary?: instructionDictionaryType
-  ) {
+  constructor(callbacks: SimCallbacks, dictionary?: instructionDictionaryType) {
     this.instructions = new Instructions(dictionary);
 
     this.memory = new Uint16Array(uint16_max + 1);
     this.stack = new Uint16Array(stack_size);
 
-    this.outputRawCallback = options.outputRawCallback;
-    this.inputRawCallback = options.inputRawCallback;
-    this.inputAvailableCallback = options.inputAvailableCallback;
-    this.haltCallback = options.haltCallback;
-    this.badInsCallback = options.badInsCallback;
+    this.callbacks = { ...callbacks };
 
     this.reset();
   }
@@ -54,10 +45,12 @@ export class Sim {
   public reset() {
     this.acc = 0;
     this.adr = 0;
+    this.led = 0;
     this.pc = 0;
     this.stackPointer = 0;
     this.carry = false;
     this.zero = true;
+    this.setZero = false;
   }
 
   /** Single steps the CPU */
@@ -72,12 +65,8 @@ export class Sim {
       const destinationImplementation =
         this.instructions.destinationOpcodeToImplementation[ins.destination];
 
-      //If source or destination is bad, skip this instruction
-      if (!sourceImplementation || !destinationImplementation) {
-        this.badInsCallback?.(this.pc);
-        this.pc += ins.length;
-        return;
-      }
+      if (!sourceImplementation || !destinationImplementation)
+        this.callbacks.badInsCallback?.(this.pc);
 
       const sourceValue = sourceImplementation?.call(this);
 
@@ -85,7 +74,7 @@ export class Sim {
 
       this.pc++;
 
-      destinationImplementation?.call(this, sourceValue, ins.length);
+      destinationImplementation?.call(this, sourceValue || 0, ins.length);
     } else {
       this.pc += ins.length;
     }
@@ -120,7 +109,8 @@ export class Sim {
   /** Limits register value to uint16 range and also sets zero flag */
   private limitRegistersTo16Bits() {
     this.acc = this.uint16(this.acc);
-    this.zero = this.acc == 0;
+    this.zero = this.acc == 0 || this.setZero;
+    this.setZero = false;
 
     this.pc = this.uint16(this.pc);
   }
@@ -130,16 +120,19 @@ export class Sim {
   }
 }
 
-type SimConstructorOptions = Partial<{
-  outputRawCallback: outputRawCallbackType;
-  inputRawCallback: inputRawCallbackType;
-  inputAvailableCallback: inputAvailableCallbackType;
-  haltCallback: haltCallbackType;
-  badInsCallback: badInsCallbackType;
+type SimCallbacks = Partial<{
+  outputRawCallback: outputCallbackType;
+  outputAvailableCallback: availableCallbackType;
+
+  inputRawCallback: inputCallbackType;
+  inputAvailableCallback: availableCallbackType;
+
+  ledCallback: outputCallbackType;
+
+  haltCallback: outputCallbackType;
+  badInsCallback: outputCallbackType;
 }>;
 
-export type outputRawCallbackType = (n: number) => void;
-export type inputRawCallbackType = () => number;
-export type inputAvailableCallbackType = () => boolean;
-export type haltCallbackType = () => void;
-export type badInsCallbackType = (adr: number) => void;
+export type outputCallbackType = (n: number) => void;
+export type inputCallbackType = () => number;
+export type availableCallbackType = () => boolean;

@@ -85,10 +85,9 @@ it("Simulates complicated program", () => {
   while (!halted) sim.singleStep();
 
   expect(outBuff).toEqual([
+    "E".charCodeAt(0),
+    "F".charCodeAt(0),
     "6".charCodeAt(0),
-    "1".charCodeAt(0),
-    "2".charCodeAt(0),
-    "9".charCodeAt(0),
-    "3".charCodeAt(0),
+    "D".charCodeAt(0),
   ]);
 });

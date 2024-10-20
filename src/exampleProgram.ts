@@ -8,34 +8,6 @@ string_to_number => CALL
 number_out => CALL
 NULL => HALT
 
-//Function that outputs a provided number
-//The number should be on the top of stack before calling it
-number_out:
-    POP => ADR
-    POP => ACC
-    ADR => PUSH
-    ACC => ADR
-
-    0 => PUSH
-
-    number_out_loop:
-        10 => MOD
-        0 => CARRY
-        '0' => PLUS
-        ACC => PUSH
-
-        ADR => ACC
-        10 => DIV
-        ACC => ADR
-        
-        number_out_write => PC z
-    number_out_loop => PC
-
-    number_out_write:
-        POP => ACC
-        POP => PC z
-        ACC => OUT
-    number_out_write => PC
 
 //Function that converts provided string to number
 //String address should be on the top of stack before calling it
@@ -53,13 +25,12 @@ string_to_number:
 
         POP => ACC
         10 => MUL
-        MEM => PLUS
-        0 => CARRY
-        '0' => MINUS
+        MEM => ADD
+        '0' => SUB
         ACC => PUSH
 
         ADR => ACC
-        1 => PLUS
+        1 => ADD
         ACC => ADR
         
     string_to_number_loop => PC
@@ -69,4 +40,35 @@ string_to_number:
         POP => ADR
         ACC => PUSH
         ADR => PC
+
+
+//Function that outputs a provided number
+//The number should be on the top of stack before calling it
+number_out:
+    POP => ADR
+    POP => ACC
+    ADR => PUSH
+    ACC => ADR
+
+    0 => PUSH
+
+    number_out_loop:
+        0xF => AND
+        10  => CMP
+        7   => SUB c
+        55  => ADD
+        ACC => PUSH
+
+        ADR => ACC
+        4 => SHIFT_R
+        ACC => ADR
+        
+        number_out_write => PC z
+    number_out_loop => PC
+
+    number_out_write:
+        POP => ACC
+        POP => PC z
+        ACC => OUT
+    number_out_write => PC
 `;

@@ -4,9 +4,31 @@ import { uint16_max } from "./common.js";
 export const defaultInstructionDictionary: instructionDictionaryType = [
   {
     type: "source",
+    name: "NULL",
+    implementation: function () {
+      return 0;
+    },
+  },
+  {
+    type: "source",
     name: "ACC",
     implementation: function () {
       return this.acc;
+    },
+  },
+  {
+    type: "source",
+    name: "TRUE",
+    implementation: function () {
+      return 0xffff;
+    },
+  },
+  {
+    type: "source",
+    name: "OP",
+    isOperand: true,
+    implementation: function () {
+      return this.memory[++this.pc];
     },
   },
   {
@@ -25,26 +47,9 @@ export const defaultInstructionDictionary: instructionDictionaryType = [
   },
   {
     type: "source",
-    name: "OP",
-    isOperand: true,
+    name: "PC",
     implementation: function () {
-      return this.memory[++this.pc];
-    },
-  },
-  {
-    type: "source",
-    name: "IN",
-    implementation: function () {
-      if (!this.inputAvailableCallback?.()) return null;
-
-      return this.inputRawCallback?.() || 0;
-    },
-  },
-  {
-    type: "source",
-    name: "IN_AV",
-    implementation: function () {
-      return this.inputAvailableCallback?.() ? 0xffff : 0;
+      return this.pc + 1;
     },
   },
   {
@@ -56,12 +61,40 @@ export const defaultInstructionDictionary: instructionDictionaryType = [
   },
   {
     type: "source",
-    name: "NULL",
+    name: "IN",
     implementation: function () {
-      return 0;
+      if (!this.callbacks.inputAvailableCallback?.()) return null;
+
+      return this.callbacks.inputRawCallback?.() || 0;
+    },
+  },
+  {
+    type: "source",
+    name: "IN_AV",
+    implementation: function () {
+      return this.callbacks.inputAvailableCallback?.() ? 0xffff : 0;
+    },
+  },
+  {
+    type: "source",
+    name: "OUT_AV",
+    implementation: function () {
+      return this.callbacks.outputAvailableCallback?.() ? 0xffff : 0;
+    },
+  },
+  {
+    type: "source",
+    name: "LED",
+    implementation: function () {
+      return this.led;
     },
   },
 
+  {
+    type: "destination",
+    name: "NULL",
+    implementation: function (n) {},
+  },
   {
     type: "destination",
     name: "ACC",
@@ -71,21 +104,15 @@ export const defaultInstructionDictionary: instructionDictionaryType = [
   },
   {
     type: "destination",
-    name: "ADR",
+    name: "ADD",
     implementation: function (n) {
-      this.adr = n;
+      this.acc += n;
+      this.carry = this.acc > uint16_max;
     },
   },
   {
     type: "destination",
-    name: "MEM",
-    implementation: function (n) {
-      this.memory[this.adr] = n;
-    },
-  },
-  {
-    type: "destination",
-    name: "PLUS",
+    name: "ADDC",
     implementation: function (n) {
       this.acc += n + (this.carry ? 1 : 0);
       this.carry = this.acc > uint16_max;
@@ -93,7 +120,15 @@ export const defaultInstructionDictionary: instructionDictionaryType = [
   },
   {
     type: "destination",
-    name: "MINUS",
+    name: "SUB",
+    implementation: function (n) {
+      this.acc -= n;
+      this.carry = this.acc < 0;
+    },
+  },
+  {
+    type: "destination",
+    name: "SUBC",
     implementation: function (n) {
       this.acc -= n + (this.carry ? 1 : 0);
       this.carry = this.acc < 0;
@@ -101,38 +136,18 @@ export const defaultInstructionDictionary: instructionDictionaryType = [
   },
   {
     type: "destination",
-    name: "CARRY",
+    name: "CMP",
     implementation: function (n) {
-      this.carry = n != 0;
+      this.carry = this.acc - n < 0;
+      this.setZero = this.acc == 0;
     },
   },
   {
     type: "destination",
-    name: "ZERO",
+    name: "MUL",
     implementation: function (n) {
-      this.zero = n != 0;
-    },
-  },
-  {
-    type: "destination",
-    name: "OUT",
-    implementation: function (n) {
-      this.outputRawCallback?.(n);
-    },
-  },
-  {
-    type: "destination",
-    name: "PC",
-    implementation: function (n) {
-      this.pc = n;
-    },
-  },
-  {
-    type: "destination",
-    name: "HALT",
-    implementation: function (n, instructionLength) {
-      this.pc -= instructionLength;
-      this.haltCallback?.();
+      this.acc *= n;
+      this.carry = this.acc > uint16_max;
     },
   },
   {
@@ -153,45 +168,58 @@ export const defaultInstructionDictionary: instructionDictionaryType = [
   },
   {
     type: "destination",
-    name: "MUL",
+    name: "AND",
     implementation: function (n) {
-      this.acc *= n;
-      this.carry = this.acc > uint16_max;
+      this.acc &= n;
     },
   },
   {
     type: "destination",
-    name: "DIV_S",
+    name: "XOR",
     implementation: function (n) {
-      this.acc = ((this.acc << 16) >> 16) / ((n << 16) >> 16);
+      this.acc ^= n;
     },
   },
   {
     type: "destination",
-    name: "DIV",
+    name: "OR",
     implementation: function (n) {
-      this.acc /= n;
+      this.acc |= n;
     },
   },
   {
     type: "destination",
-    name: "MOD_S",
+    name: "CARRY",
     implementation: function (n) {
-      this.acc = ((this.acc << 16) >> 16) % ((n << 16) >> 16);
+      this.carry = n != 0;
     },
   },
   {
     type: "destination",
-    name: "MOD",
+    name: "ZERO",
     implementation: function (n) {
-      this.acc %= n;
+      this.zero = n != 0;
     },
   },
   {
     type: "destination",
-    name: "PUSH",
+    name: "ADR",
     implementation: function (n) {
-      this.push(n);
+      this.adr = n;
+    },
+  },
+  {
+    type: "destination",
+    name: "MEM",
+    implementation: function (n) {
+      this.memory[this.adr] = n;
+    },
+  },
+  {
+    type: "destination",
+    name: "PC",
+    implementation: function (n) {
+      this.pc = n;
     },
   },
   {
@@ -204,7 +232,32 @@ export const defaultInstructionDictionary: instructionDictionaryType = [
   },
   {
     type: "destination",
-    name: "NULL",
-    implementation: function (n) {},
+    name: "PUSH",
+    implementation: function (n) {
+      this.push(n);
+    },
+  },
+  {
+    type: "destination",
+    name: "HALT",
+    implementation: function (n, instructionLength) {
+      this.pc -= instructionLength;
+      this.callbacks.haltCallback?.(this.pc);
+    },
+  },
+  {
+    type: "destination",
+    name: "OUT",
+    implementation: function (n) {
+      this.callbacks.outputRawCallback?.(n);
+    },
+  },
+  {
+    type: "destination",
+    name: "LED",
+    implementation: function (n) {
+      this.led = n;
+      this.callbacks.ledCallback?.(this.led);
+    },
   },
 ];

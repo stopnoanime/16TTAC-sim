@@ -71,15 +71,28 @@ program
   .command("compile")
   .argument("<source>", "Source file to compile")
   .argument("[binary]", "File to write binary output to")
-  .action(async (source, output) => {
+  .option("-x, --hex", "Saves the file in hex instead of binary format")
+  .action(async (source, output, options) => {
+    const isHex = !!options.hex;
+
     const sourceCode = await fs.readFile(source, { encoding: "utf8" });
     const outputName =
       output ||
       path.join(
         path.dirname(source),
-        path.basename(source, path.extname(source)) + ".bin"
+        path.basename(source, path.extname(source)) + (isHex ? ".hex" : ".bin")
       );
-    fs.writeFile(outputName, compiler.compile(parser.parse(sourceCode)));
+
+    const binary = compiler.compile(parser.parse(sourceCode));
+
+    fs.writeFile(
+      outputName,
+      isHex
+        ? Array.from(binary).map(
+            (v) => ("0000" + v.toString(16).toUpperCase()).slice(-4) + "\n"
+          )
+        : binary
+    );
   });
 
 program

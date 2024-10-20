@@ -2,9 +2,21 @@
 
 ## Sources
 
+### NULL
+
+Returns 0x0000
+
 ### ACC
 
 Returns the accumulator value.
+
+### TRUE
+
+Returns 0xFFFF
+
+### OP
+
+Returns the supplied operand.
 
 ### ADR
 
@@ -14,30 +26,95 @@ Returns the address register value.
 
 Returns the memory value at address specified by the address register.
 
-### IN
+### PC
 
-Returns the first value from the input queue.
-If there are no items in the input queue, it waits for any to arrive.
-
-### IN_AV
-
-Returns 0xFFFF if there are any items in the input queue, otherwise returns 0x0000.
+Returns the Program Counter value.
 
 ### POP
 
 Pops a value from the stack and returns it
 
-### NULL
+### IN
 
-Returns 0x0000
+Returns data from input device.
+If there is no data available, it waits for any to arrive.
+
+### IN_AV
+
+Returns 0xFFFF if there is any input data available, otherwise returns 0x0000.
+
+### OUT_AV
+
+Returns 0xFFFF if the output device is ready to write, otherwise returns 0x0000.
+
+### LED
+
+Returns the value stored in the LED output register.
 
 ## Destinations
 
 All destinations that set the accumulator also set the Zero flag with the correct value.
 
+### NULL
+
+Does nothing.
+
 ### ACC
 
 Sets the accumulator with given value.
+
+### ADD
+
+Adds the given value to the accumulator. Uses sets the carry flag on overflow.
+
+### ADDC
+
+Adds the given value and carry to the accumulator. Sets the carry flag on overflow.
+
+### SUB
+
+Subtracts the given value from the accumulator. Sets the carry flag on underflow.
+
+### SUBC
+
+Subtracts the given value and carry from the accumulator. Sets the carry flag on underflow.
+
+### CMP
+
+Subtracts the given value from the accumulator, but does not store the value.
+Sets the carry flag on underflow, and also updates the zero flag.
+
+### MUL
+
+Multiplies the given value and the accumulator. Sets the carry flag on overflow.
+
+### SHIFT_L
+
+Shifts the accumulator value left (given value)times.
+
+### SHIFT_R
+
+Shifts the accumulator value right (given value)times.
+
+### AND
+
+ANDs the given value and the accumulator.
+
+### XOR
+
+XORs the given value and the accumulator.
+
+### OR
+
+ORs the given value and the accumulator.
+
+### CARRY
+
+If the given value is 0x0000 unsets the Carry flag, otherwise sets it.
+
+### ZERO
+
+If the given value is 0x0000 unsets the Zero flag, otherwise sets it.
 
 ### ADR
 
@@ -51,6 +128,14 @@ Sets the memory value at address specified by the address register.
 
 Sets the Program Counter with the given value.
 
+### CALL
+
+Pushes the Program counter onto the stack and sets it with the given value.
+
+### PUSH
+
+Pushes the given value onto the stack.
+
 ### HALT
 
 Halts the CPU, the given value is ignored.
@@ -59,58 +144,8 @@ Halts the CPU, the given value is ignored.
 
 Outputs the given value.
 
-### PUSH
+### LED
 
-Pushes the given value onto the stack.
-
-### CALL
-
-Pushes the Program counter onto the stack and sets it with the given value.
-
-### NULL
-
-Does nothing.
-
-### CARRY
-
-If the given value is 0x0000 unsets the Carry flag, otherwise sets it.
-
-### ZERO
-
-If the given value is 0x0000 unsets the Zero flag, otherwise sets it.
-
-### PLUS
-
-Adds the given value to the accumulator. Uses and sets the carry flag on overflow.
-
-### MINUS
-
-Subtracts the given value to the accumulator. Uses and sets the carry flag on underflow.
-
-### SHIFT_L
-
-Shifts the accumulator value left (given value)times.
-
-### SHIFT_R
-
-Shifts the accumulator value right (given value)times.
-
-### MUL
-
-Multiplies the given value and the accumulator. Sets the carry flag on overflow.
-
-### DIV_S
-
-Performs signed division of the accumulator value by the given value.
-
-### DIV
-
-Performs unsigned division of the accumulator value by the given value.
-
-### MOD_S
-
-Performs the modulo operation on the accumulator value and the given value, while treating them as signed numbers.
-
-### MOD
-
-Performs the modulo operation on the accumulator value and the given value, while treating them as unsigned numbers.
+Sets the LED output register to the given value.
+Bits (2 downto 0) of this register are used to control respectively
+RED, GREEN and BLUE parts of the LED.
