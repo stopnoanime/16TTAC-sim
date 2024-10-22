@@ -1,11 +1,15 @@
 word prompt[19] = "Input any string: "
+word response[30]
+
+// Outputs RED
+4 => LED
 
 prompt => PUSH
 string_out => CALL
 
-prompt => PUSH
+response => PUSH
 string_in => CALL
-prompt => PUSH
+response => PUSH
 string_out => CALL
 
 NULL => HALT
@@ -38,21 +42,17 @@ string_in:
 
     string_in_loop:
         IN => ACC
-        ACC => PUSH
-
-        ' ' => SUB
-        NULL => MEM z
-        POP => NULL z
+        ACC => LED
+        
+        NULL => MEM
+        
+        ' ' => CMP
         POP => PC z
 
-        POP => ACC
-        ACC => PUSH
-        '\r' => SUB
-        NULL => MEM z
-        POP => NULL z
+        '\r' => CMP
         POP => PC z
 
-        POP => MEM
+        ACC => MEM
 
         ADR => ACC
         1 => ADD

@@ -139,7 +139,7 @@ export const defaultInstructionDictionary: instructionDictionaryType = [
     name: "CMP",
     implementation: function (n) {
       this.carry = this.acc - n < 0;
-      this.setZero = this.acc == 0;
+      this.setZero = this.acc - n == 0;
     },
   },
   {
